@@ -1,0 +1,1181 @@
+From abc4d0db81e976c9606e155663118bce07534a0e Mon Sep 17 00:00:00 2001
+From: Sanityl <cailen01@gmail.com>
+Date: Wed, 17 Aug 2016 22:43:26 +1000
+Subject: [PATCH] Inital Commit
+
+---
+ .gitignore                            |   3 +
+ ROITesting.sln                        |  28 ++
+ ROITesting/Eyes.cpp                   |  21 ++
+ ROITesting/Eyes.h                     |  23 ++
+ ROITesting/ROITesting.cpp             | 117 +++++++++
+ ROITesting/ROITesting.vcxproj         | 163 ++++++++++++
+ ROITesting/ROITesting.vcxproj.filters |  36 +++
+ ROITesting/ROIs.cpp                   |  14 +
+ ROITesting/ROIs.h                     |  14 +
+ ROITesting/ReadMe.txt                 |  40 +++
+ ROITesting/measurementSuite.cpp       |   6 +
+ ROITesting/measurementSuite.h         |  63 +++++
+ ROITesting/objectDetection.cpp        | 476 ++++++++++++++++++++++++++++++++++
+ ROITesting/stdafx.cpp                 |   8 +
+ ROITesting/stdafx.h                   |  15 ++
+ ROITesting/targetver.h                |   8 +
+ 16 files changed, 1035 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 ROITesting.sln
+ create mode 100644 ROITesting/Eyes.cpp
+ create mode 100644 ROITesting/Eyes.h
+ create mode 100644 ROITesting/ROITesting.cpp
+ create mode 100644 ROITesting/ROITesting.vcxproj
+ create mode 100644 ROITesting/ROITesting.vcxproj.filters
+ create mode 100644 ROITesting/ROIs.cpp
+ create mode 100644 ROITesting/ROIs.h
+ create mode 100644 ROITesting/ReadMe.txt
+ create mode 100644 ROITesting/measurementSuite.cpp
+ create mode 100644 ROITesting/measurementSuite.h
+ create mode 100644 ROITesting/objectDetection.cpp
+ create mode 100644 ROITesting/stdafx.cpp
+ create mode 100644 ROITesting/stdafx.h
+ create mode 100644 ROITesting/targetver.h
+
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..3287684
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,3 @@
++opencv2
++x64
++*.sdf
+diff --git a/ROITesting.sln b/ROITesting.sln
+new file mode 100644
+index 0000000..1009b46
+--- /dev/null
++++ b/ROITesting.sln
+@@ -0,0 +1,28 @@
++﻿
++Microsoft Visual Studio Solution File, Format Version 12.00
++# Visual Studio 2013
++VisualStudioVersion = 12.0.40629.0
++MinimumVisualStudioVersion = 10.0.40219.1
++Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ROITesting", "ROITesting\ROITesting.vcxproj", "{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}"
++EndProject
++Global
++	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|Win32 = Debug|Win32
++		Debug|x64 = Debug|x64
++		Release|Win32 = Release|Win32
++		Release|x64 = Release|x64
++	EndGlobalSection
++	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Debug|Win32.ActiveCfg = Debug|Win32
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Debug|Win32.Build.0 = Debug|Win32
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Debug|x64.ActiveCfg = Debug|x64
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Debug|x64.Build.0 = Debug|x64
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Release|Win32.ActiveCfg = Release|Win32
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Release|Win32.Build.0 = Release|Win32
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Release|x64.ActiveCfg = Release|x64
++		{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}.Release|x64.Build.0 = Release|x64
++	EndGlobalSection
++	GlobalSection(SolutionProperties) = preSolution
++		HideSolutionNode = FALSE
++	EndGlobalSection
++EndGlobal
+diff --git a/ROITesting/Eyes.cpp b/ROITesting/Eyes.cpp
+new file mode 100644
+index 0000000..eafc02a
+--- /dev/null
++++ b/ROITesting/Eyes.cpp
+@@ -0,0 +1,21 @@
++#include "Eyes.h"
++#include "stdafx.h"
++
++Eyes::Eyes(Rect a, int b, Scalar c){
++	rect = a;
++	partnerId = b;
++	colour = c;
++};
++
++Eyes::Eyes(Rect a, int b){
++	rect = a;
++	partnerId = b;
++};
++
++Eyes::Eyes(Rect a){
++	rect = a;
++};
++
++Point Eyes::center(){
++	return Point((rect.x + rect.x + rect.width) / 2, (rect.y + rect.y + rect.height) / 2);
++}
+\ No newline at end of file
+diff --git a/ROITesting/Eyes.h b/ROITesting/Eyes.h
+new file mode 100644
+index 0000000..a8eea21
+--- /dev/null
++++ b/ROITesting/Eyes.h
+@@ -0,0 +1,23 @@
++
++#ifndef Eyes_H
++#define Eyes_H
++
++#include "opencv2/objdetect/objdetect.hpp"
++#include "opencv2/highgui/highgui.hpp"
++#include "opencv2/imgproc/imgproc.hpp"
++using namespace cv;
++
++class Eyes{
++public:
++	int partnerId = -1;
++	Rect rect;
++	Scalar colour = Scalar(255, 255, 255);
++	Point center();
++	Eyes(Rect, int, Scalar); //constructor
++	Eyes(Rect, int); //constructor
++	Eyes(Rect);
++	int counter = 0;
++};
++
++
++#endif
+\ No newline at end of file
+diff --git a/ROITesting/ROITesting.cpp b/ROITesting/ROITesting.cpp
+new file mode 100644
+index 0000000..a3dca3f
+--- /dev/null
++++ b/ROITesting/ROITesting.cpp
+@@ -0,0 +1,117 @@
++// ROITesting.cpp : Defines the entry point for the console application.
++//
++
++#include "stdafx.h"
++
++#include "opencv2/objdetect/objdetect.hpp"
++#include "opencv2/highgui/highgui.hpp"
++#include "opencv2/imgproc/imgproc.hpp"
++
++//#include "measurementSuite.h"
++#include "Eyes.h"
++#include "ROIs.h"
++
++
++#include <time.h> // to calculate time needed
++#include <limits.h> // to get INT_MAX, to protect against overflow
++
++
++// fps counter begin
++time_t tstart, tend;
++int counter = 0;
++double sec;
++double fps;
++// fps counter end
++
++using namespace cv;
++using namespace std;
++
++int displayCamera(VideoCapture& camera);
++void processImage(Mat& frame, vector<Rect>& RoiRef);
++
++int _tmain(int argc, _TCHAR* argv[])
++{
++	VideoCapture camera;
++	if (!camera.open(0))
++		return 0;
++	displayCamera(camera);
++	
++	return 0;
++}
++
++
++
++int displayCamera(VideoCapture& camera){
++
++	Mat frame;
++	vector<Rect> rec;
++	//MeasureTool mTool;
++	
++	for (;;){
++		if (counter == 0){
++			time(&tstart);
++		}
++		// fps counter end
++
++		camera >> frame;
++	
++		//mTool.start();
++		processImage(frame, rec);
++		//mTool.end();
++
++		time(&tend);
++		counter++;
++		sec = difftime(tend, tstart);
++		fps = counter / sec;
++		if (counter > 30)
++
++			// overflow protection
++			if (counter == (INT_MAX - 1000))
++				counter = 0;
++		// fps counter end
++		putText(frame, "fps: " + to_string(fps), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
++
++	//	putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
++		imshow("output", frame);
++		if (waitKey(1) == 27) break;
++	}
++	
++	
++	return 0;
++}
++
++//do the preliminary processing in this function, this function calls specific processing functions as well.
++void processImage(Mat& frame, vector<Rect>& RoiRef){
++	
++	Size frameSize = frame.size();
++	Mat processImg = frame;
++
++	//preprocess Blur, color correct, etc
++
++
++	//call Detection Method
++
++
++	//Set ROI
++
++
++
++}
++
++/*
++	detection comparasion
++	for each run, we want to compare the success of the detection method and any speed improvement by using an ROIs method.
++
++	To do this 
++	-> measure the amount of succesful detections (accuracy)
++	-> measure the amount of time per detection (performance)
++	-> measure the amount of correctly located detected objects (precision)
++
++	The setup will need to run through the test, display real time results, display results on end, and store results.
++	FPS
++
++	Flags I need:
++	Measure: T/F
++	Save Results: T/F
++*/
++
+diff --git a/ROITesting/ROITesting.vcxproj b/ROITesting/ROITesting.vcxproj
+new file mode 100644
+index 0000000..3931d94
+--- /dev/null
++++ b/ROITesting/ROITesting.vcxproj
+@@ -0,0 +1,163 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
++  <PropertyGroup Label="Globals">
++    <ProjectGuid>{6C59E44B-5CD4-4016-A34F-2B3E79B5DC56}</ProjectGuid>
++    <Keyword>Win32Proj</Keyword>
++    <RootNamespace>ROITesting</RootNamespace>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++    <PlatformToolset>v120</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++    <PlatformToolset>v120</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <PlatformToolset>v120</PlatformToolset>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <CharacterSet>Unicode</CharacterSet>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <PlatformToolset>v120</PlatformToolset>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++    <CharacterSet>Unicode</CharacterSet>
++  </PropertyGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
++  <ImportGroup Label="ExtensionSettings">
++  </ImportGroup>
++  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++    <Import Project="..\..\opencvproperties3.props" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++    <Import Project="..\..\opencvproperties3.props" />
++  </ImportGroup>
++  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++    <Import Project="..\..\opencvproperties3.props" />
++  </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++    <Import Project="..\..\opencvproperties3.props" />
++  </ImportGroup>
++  <PropertyGroup Label="UserMacros" />
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <LinkIncremental>true</LinkIncremental>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <LinkIncremental>true</LinkIncremental>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <LinkIncremental>false</LinkIncremental>
++  </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <LinkIncremental>false</LinkIncremental>
++  </PropertyGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
++    <ClCompile>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <SDLCheck>true</SDLCheck>
++    </ClCompile>
++    <Link>
++      <SubSystem>Console</SubSystem>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
++    <ClCompile>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <SDLCheck>true</SDLCheck>
++    </ClCompile>
++    <Link>
++      <SubSystem>Console</SubSystem>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <SDLCheck>true</SDLCheck>
++    </ClCompile>
++    <Link>
++      <SubSystem>Console</SubSystem>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <SDLCheck>true</SDLCheck>
++    </ClCompile>
++    <Link>
++      <SubSystem>Console</SubSystem>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++    </Link>
++  </ItemDefinitionGroup>
++  <ItemGroup>
++    <Text Include="ReadMe.txt" />
++  </ItemGroup>
++  <ItemGroup>
++    <ClInclude Include="stdafx.h" />
++    <ClInclude Include="targetver.h" />
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="ROITesting.cpp" />
++    <ClCompile Include="stdafx.cpp" />
++  </ItemGroup>
++  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
++  <ImportGroup Label="ExtensionTargets">
++  </ImportGroup>
++</Project>
+\ No newline at end of file
+diff --git a/ROITesting/ROITesting.vcxproj.filters b/ROITesting/ROITesting.vcxproj.filters
+new file mode 100644
+index 0000000..76a96ac
+--- /dev/null
++++ b/ROITesting/ROITesting.vcxproj.filters
+@@ -0,0 +1,36 @@
++﻿<?xml version="1.0" encoding="utf-8"?>
++<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup>
++    <Filter Include="Source Files">
++      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
++      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
++    </Filter>
++    <Filter Include="Header Files">
++      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
++      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
++    </Filter>
++    <Filter Include="Resource Files">
++      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
++      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
++    </Filter>
++  </ItemGroup>
++  <ItemGroup>
++    <Text Include="ReadMe.txt" />
++  </ItemGroup>
++  <ItemGroup>
++    <ClInclude Include="stdafx.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++    <ClInclude Include="targetver.h">
++      <Filter>Header Files</Filter>
++    </ClInclude>
++  </ItemGroup>
++  <ItemGroup>
++    <ClCompile Include="stdafx.cpp">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++    <ClCompile Include="ROITesting.cpp">
++      <Filter>Source Files</Filter>
++    </ClCompile>
++  </ItemGroup>
++</Project>
+\ No newline at end of file
+diff --git a/ROITesting/ROIs.cpp b/ROITesting/ROIs.cpp
+new file mode 100644
+index 0000000..7bb8976
+--- /dev/null
++++ b/ROITesting/ROIs.cpp
+@@ -0,0 +1,14 @@
++#include "ROIs.h"
++
++/*
++Types of Regions of Interests are defined here and can be called from outside the class.
++*/
++
++
++void staticROI(){
++
++}
++
++void dyamicROI(Rect rec, enum type){
++
++}
+diff --git a/ROITesting/ROIs.h b/ROITesting/ROIs.h
+new file mode 100644
+index 0000000..f179163
+--- /dev/null
++++ b/ROITesting/ROIs.h
+@@ -0,0 +1,14 @@
++
++#ifndef ROIs_H
++#define ROIs_H
++
++#include "opencv2/objdetect/objdetect.hpp"
++#include "opencv2/highgui/highgui.hpp"
++#include "opencv2/imgproc/imgproc.hpp"
++using namespace cv;
++
++void staticROI();
++
++void dyamicROI(Rect rec, enum type);
++
++#endif
+\ No newline at end of file
+diff --git a/ROITesting/ReadMe.txt b/ROITesting/ReadMe.txt
+new file mode 100644
+index 0000000..70f6536
+--- /dev/null
++++ b/ROITesting/ReadMe.txt
+@@ -0,0 +1,40 @@
++========================================================================
++    CONSOLE APPLICATION : ROITesting Project Overview
++========================================================================
++
++AppWizard has created this ROITesting application for you.
++
++This file contains a summary of what you will find in each of the files that
++make up your ROITesting application.
++
++
++ROITesting.vcxproj
++    This is the main project file for VC++ projects generated using an Application Wizard.
++    It contains information about the version of Visual C++ that generated the file, and
++    information about the platforms, configurations, and project features selected with the
++    Application Wizard.
++
++ROITesting.vcxproj.filters
++    This is the filters file for VC++ projects generated using an Application Wizard. 
++    It contains information about the association between the files in your project 
++    and the filters. This association is used in the IDE to show grouping of files with
++    similar extensions under a specific node (for e.g. ".cpp" files are associated with the
++    "Source Files" filter).
++
++ROITesting.cpp
++    This is the main application source file.
++
++/////////////////////////////////////////////////////////////////////////////
++Other standard files:
++
++StdAfx.h, StdAfx.cpp
++    These files are used to build a precompiled header (PCH) file
++    named ROITesting.pch and a precompiled types file named StdAfx.obj.
++
++/////////////////////////////////////////////////////////////////////////////
++Other notes:
++
++AppWizard uses "TODO:" comments to indicate parts of the source code you
++should add to or customize.
++
++/////////////////////////////////////////////////////////////////////////////
+diff --git a/ROITesting/measurementSuite.cpp b/ROITesting/measurementSuite.cpp
+new file mode 100644
+index 0000000..a0aa421
+--- /dev/null
++++ b/ROITesting/measurementSuite.cpp
+@@ -0,0 +1,6 @@
++#include "measurementSuite.h"
++#include <time.h> // to calculate time needed
++#include <limits.h> // to get INT_MAX, to protect against overflow
++
++#include "stdafx.h"
++
+diff --git a/ROITesting/measurementSuite.h b/ROITesting/measurementSuite.h
+new file mode 100644
+index 0000000..f2c3899
+--- /dev/null
++++ b/ROITesting/measurementSuite.h
+@@ -0,0 +1,63 @@
++
++#ifndef MEASUREMENTSUITE_H
++#define MEASUREMENTSUITE_H
++
++
++#include <time.h> // to calculate time needed
++#include <limits.h> // to get INT_MAX, to protect against overflow
++
++#include "stdafx.h"
++
++#include <iostream>
++using namespace std;
++class MeasureTool{
++public:
++	// fps counter begin
++	time_t tstart, tend;
++	int counter = 0;
++	double sec;
++	double fps;
++	// fps counter end
++	//MeasureTool();//constructor
++	double getFPS();
++	void start();
++	void end();
++	
++};
++
++/*
++void MeasureTool::Iterate(){
++	time(&end);
++	counter++;
++	sec = difftime(end, start);
++	fps = counter / sec;
++	if (counter > 30)
++
++		// overflow protection
++		if (counter == (INT_MAX - 1000))
++			counter = 0;
++	// fps counter end
++
++}
++*/
++void MeasureTool::start(){
++	time(&tstart);
++
++}
++
++void MeasureTool::end(){
++	time(&tend);
++	
++	counter++;
++	sec = difftime(tend, tstart);
++	fps = counter / sec;
++	cout << sec << endl;
++	// overflow protection
++	if (counter == (INT_MAX - 1000))
++		counter = 0;
++}
++
++double MeasureTool::getFPS(){
++	return fps;
++}
++#endif
+\ No newline at end of file
+diff --git a/ROITesting/objectDetection.cpp b/ROITesting/objectDetection.cpp
+new file mode 100644
+index 0000000..25b86b4
+--- /dev/null
++++ b/ROITesting/objectDetection.cpp
+@@ -0,0 +1,476 @@
++// objectDetection.cpp : Defines the entry point for the console application.
++//
++
++
++#include "stdafx.h"
++
++#include "opencv2/objdetect/objdetect.hpp"
++#include "opencv2/highgui/highgui.hpp"
++#include "opencv2/imgproc/imgproc.hpp"
++#include "opencv2/opencv.hpp"
++
++#include <time.h> // to calculate time needed
++#include <limits.h> // to get INT_MAX, to protect against overflow
++
++#include <iostream>
++#include <future>
++#define _GLIBCXX_USE_NANOSLEEP
++#include <string>
++#include <thread>
++
++
++using namespace cv;
++using namespace std;
++
++
++const int frameWidth = 320;
++const int frameHeight = 240;
++Size frameSize;
++
++Point frameP(Point resize);
++Rect frameRoi(Rect obj, Point RoiPoint);
++
++double PointDist(Point a, Point b);
++vector<Eyes> partnerEyes(vector<Rect>eyes);
++vector<Rect> detectEyes(Mat& frame);
++vector<Rect> detectEyes(Mat& frame, vector<Rect>& Roi);
++void trackEyes(vector<Eyes> currentEyes, vector<Eyes>& pastEyes);
++Mat processImage(Mat frame, vector<Eyes>& pastEyes, vector<Rect>& Roi);
++void updateRoi(vector<Rect>& Roi, vector<Eyes>,int maxWidth, int maxHeight);
++int eyeHeight = 15;
++int eyeDistance = 200;
++
++int avgDistance= 0;
++int pairsFound = 0;
++
++void detectEyesAsync(Mat frame);
++bool asyncReady = true; //when true, the async complete detecteyes can run.
++vector<Rect> asyncEyes; //if the async returns results they will be stored here until the next run so that they can be used.
++
++
++
++
++vector<Point> objectsTracked;
++
++
++cv::String eyes_cascade_name = "haarcascades/haarcascade_eye_tree_eyeglasses.xml";
++cv::String face_cascade_name = "haarcascades/haarcascade_frontalface.xml";
++
++CascadeClassifier face_cascade;
++CascadeClassifier eyes_cascade;
++
++int displayCamera(VideoCapture& camera){
++	/*
++	if (!camera.isOpened())  // check if we succeeded
++		return -1;
++	
++
++	vector<Eyes> pastEyes; //vector that is going to contain the eyes from the previous loop.
++	vector<Eyes>& pastEyesRef = pastEyes;
++	vector<Eyes> pastE;
++	vector<Eyes>& pastERef = pastE;
++	vector<Rect> Roi;
++	vector<Rect>& RoiRef = Roi;
++
++
++	// fps counter begin
++	time_t start, end;
++	int counter = 0;
++	double sec;
++	double fps;
++	// fps counter end
++
++
++	Mat edges;
++	//namedWindow("edges", 1);
++	for (;;)
++	{
++		if (counter == 0){
++			time(&start);
++		}
++		// fps counter end
++		
++		Mat frame;
++		camera >> frame; // get a new frame from camera
++		//flip(frame, frame, 0);
++		
++		frame = processImage(frame, pastEyes, RoiRef);
++		cout << "frame end" << endl;
++
++		time(&end);
++		counter++;
++		sec = difftime(end, start);
++		fps = counter / sec;
++		if (counter > 30)
++			
++		// overflow protection
++		if (counter == (INT_MAX - 1000))
++			counter = 0;
++		// fps counter end
++		putText(frame, "fps: " + to_string(fps), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
++	
++		if (frame.empty()) break; // end of video stream
++		imshow("this is you, smile! :)", frame);
++		if (waitKey(1) == 27) break; // stop capturing by pressing ESC 
++		
++
++		
++	}
++	*/
++	// the camera will be deinitialized automatically in VideoCapture destructor
++	return 0;
++}
++
++// convert a point generated used the resized frame to the equivalent position in the original frame.
++
++
++Mat processImage(Mat frame, vector<Eyes>& pastEyesRef, vector<Rect>& RoiRef){
++	//process the image.
++	frameSize = frame.size();
++	Mat processImg = frame;
++	
++	//resize(frame, processImg, Size(frameWidth, frameHeight),0,0,1);
++
++	//cvtColor(processImg, processImg, CV_BGR2GRAY);
++	//equalizeHist(processImg, processImg);
++	Mat& processImgRef = processImg;
++	std::vector<Rect> eyes;
++
++	eyes = detectEyes(processImgRef, RoiRef);
++	/*
++	for (int i = 0; i < RoiRef.size(); i++){	//draw current ROi.
++		rectangle(frame, Point(RoiRef[i].x, RoiRef[i].y), Point(RoiRef[i].x + RoiRef[i].width, RoiRef[i].y + RoiRef[i].height), Scalar(0, 0, 0), 1, 8, 0);
++		namedWindow("roi", 1);
++		imshow("roi", frame(RoiRef[i]));
++	}
++	*/
++
++
++	vector<Eyes> eyesVect = partnerEyes(eyes);
++	cout << "eyes vector size : " << eyesVect.size() << endl;
++	updateRoi(RoiRef, eyesVect, frameWidth, frameHeight);
++
++	for (int i = 0; i < RoiRef.size(); i++){
++		rectangle(frame, frameP(Point(RoiRef[i].x, RoiRef[i].y)), frameP(Point(RoiRef[i].x + RoiRef[i].width, RoiRef[i].y + RoiRef[i].height)), Scalar(0,0,0), 1, 8, 0);
++	}
++
++	String eyeLoc;
++	
++	for (int i = 0; i < eyesVect.size(); i++){
++		//display the previous 
++		//cout << pastEyesRef.size() << endl;
++		trackEyes(eyesVect, pastEyesRef);
++		for (int z = 0; z < pastEyesRef.size(); z++){
++			rectangle(frame, frameP(Point(pastEyesRef[i].rect.x, pastEyesRef[i].rect.y)), frameP(Point(pastEyesRef[i].rect.x + pastEyesRef[i].rect.width, pastEyesRef[i].rect.y + pastEyesRef[i].rect.height)), pastEyesRef[i].colour, 1, 8, 0);
++		};
++		
++		rectangle(frame, frameP(Point(eyesVect[i].rect.x, eyesVect[i].rect.y)), frameP(Point(eyesVect[i].rect.x + eyesVect[i].rect.width, eyesVect[i].rect.y + eyesVect[i].rect.height)), eyesVect[i].colour, 1, 8, 0);
++		if (eyesVect[i].partnerId >=0)
++			line(frame, frameP(eyesVect[i].center()), frameP(eyesVect[eyesVect[i].partnerId].center()), eyesVect[i].colour, 1);
++		
++		putText(frame, "" + to_string(eyesVect[i].rect.width) + "/" + to_string(eyesVect[i].rect.height), frameP(Point(eyesVect[i].rect.x, eyesVect[i].rect.y + eyesVect[i].rect.height + 15)), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
++	}
++	
++	//update pastEyes
++
++
++
++	pastEyesRef.clear();
++//	cout << pastEyesRef.size() << endl;
++
++
++
++	for (int i = 0; i < eyesVect.size(); i++){
++		eyesVect[i].colour = Scalar(255, 0, 0);
++		//rectOverlaps(eyesVect[i], pastEyesRef);
++		pastEyesRef.push_back(eyesVect[i]);
++	}
++
++	return frame;
++}
++
++// convert point generated for resized frame to the correct position for the original frame.
++Point frameP(Point resize){
++
++	return Point(resize.x * (frameSize.width / frameWidth), resize.y * (frameSize.height / frameHeight));
++
++}
++// convert Rect generated for Roi frame to the correct position for the original frame.
++Rect frameRoi(Rect obj, Point roiPoint){
++	return Rect(obj.x + roiPoint.x, obj.y+ roiPoint.y, obj.width, obj.height);
++
++}
++
++vector<Rect>detectEyes(Mat& frame, vector<Rect>& RoiRef){
++	
++	// for each ROI run through detect eyes method.
++	vector<Rect> eyes;
++
++
++	//begin async call
++	/*
++	if (asyncReady == true){
++		cout << "async returns: " << asyncEyes.size() << endl;
++		for (int j = 0; j < asyncEyes.size(); j++){
++			eyes.push_back(asyncEyes[j]);
++		}
++		asyncEyes.clear();
++		asyncReady = false;
++		thread(detectEyesAsync, frame);
++	}
++	*/
++
++	//end async call
++
++
++	bool noRoi = true;
++
++	if (RoiRef.size() > 0){	//if Roi is present use Roi.
++		cout << "ROI Present " << RoiRef.size()<< endl;
++		noRoi = false;
++		for (int i = 0; i < RoiRef.size(); i++){
++		//	cout << "ROISize" << RoiRef[i]<<endl;
++			Mat RoiFrame = frame(RoiRef[i]);
++			Mat& RoiFrameRef = RoiFrame;
++			vector<Rect> eyes2 = detectEyes(RoiFrameRef);
++			for (int j = 0; j < eyes2.size(); j++){
++				eyes.push_back(frameRoi(eyes2[j], Point(RoiRef[i].x, RoiRef[i].y)));
++			}
++			//eyes.insert(eyes.end(), eyes2.begin(), eyes2.end()); //insert all of eyes2 into the return value.
++			
++		}
++	}else{	// if no Roi is present, scan whole image.
++		cout << "no ROI Present" << endl;
++		eyes = detectEyes(frame);
++
++	}
++	
++	if (eyes.size() == 0 && noRoi == false){	// if an Roi was used but no results were found, scan whole image.
++		cout << "no Eyes within ROI" << endl;
++		eyes = detectEyes(frame);
++	}
++	cout <<"number of eyes detected " << eyes.size() << endl;
++
++	/*
++	for (int i = 0; i < eyes.size(); i++){
++		cout << eyes[i] << endl;
++	}
++	*/
++	//eyes = detectEyes(frame);
++
++	for (int i = 0; i < eyes.size(); i++){
++		for (int j = 0; j < eyes.size(); j++){
++			if ((eyes[j].x > eyes[i].x && eyes[j].x < eyes[i].x + eyes[i].width) && (eyes[j].y > eyes[i].y && eyes[j].y < eyes[i].y + eyes[i].height)){ // if j is within i 
++				if (eyes[j].width + eyes[j].height < eyes[i].width + eyes[i].height){// if J is smaller then I
++					//cout << "overlapping eyes detected" << endl;
++					eyes.erase(eyes.begin() + j);
++				}
++			}
++		}
++	}
++
++	return eyes;
++}
++
++vector<Rect> detectEyes(Mat& frame){
++	vector<Rect> eyes;
++	//-- Detect eyes
++	eyes_cascade.detectMultiScale(frame, eyes, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(1, 1), Size(40, 40));
++
++	// if two eye results overlap, pick the result that is larger.
++	// notes: you only have to delete J here, as this will loop through the entire array.
++	// this will not have an issue with comparing to itself as it uses < not <= to compare.
++		for (int i = 0; i < eyes.size(); i++){
++			for (int j = 0; j < eyes.size(); j++){
++				if ((eyes[j].x > eyes[i].x && eyes[j].x < eyes[i].x + eyes[i].width) && (eyes[j].y > eyes[i].y && eyes[j].y < eyes[i].y + eyes[i].height)){ // if j is within i 
++					if (eyes[j].width + eyes[j].height < eyes[i].width + eyes[i].height){// if J is smaller then I
++						//cout << "overlapping eyes detected" << endl;
++						eyes.erase(eyes.begin() + j);
++					}
++				}
++			}
++		}
++	
++
++		// find the matching eye, if any.
++		// for speed, later this should be intergrated into the other loop, however while testing this is sufficent to stay as a second loop.
++		// need to save the partnering of the eyes somewhere in the class, to do this, perhaps I should make a new class that extends Rect
++		// that includes a partner iterator tag.
++	//cout << eyes.size()<< endl;
++	return eyes;
++}
++
++
++// run detectEyes on the frame and when it returns add it to the global async variable. this will then be added to the next frame as eyes.
++void detectEyesAsync(Mat frame){
++	vector<Rect> objects;
++	objects = detectEyes(frame);
++
++	for (int j = 0; j < objects.size(); j++){
++		asyncEyes.push_back(objects[j]);
++	}
++	asyncReady = true;
++}
++// partner the eyes that have been detected
++vector<Eyes> partnerEyes(vector<Rect>eyes){
++	std::vector<Eyes> eyesVect;
++
++	/*
++	Define what characteristics a pair of eyes has:
++	they are roughly the same size.
++	the distance between the two centers is a certain ratio of of the size of the eye.
++	
++	*/
++		int partnerId =-1;//-1 instead of null, i think null does werid things in c++
++		double diagonal, diagonal2;
++		Scalar colour;
++		for (int i = 0; i < eyes.size(); i++){
++			Point centerPoint;
++			for (int j = 0; j < eyes.size(); j++){
++				if ((abs(eyes[j].y - eyes[i].y) <= eyeHeight) && (j != i) && abs((eyes[j].x + eyes[j].height / 2) - (eyes[i].x + eyes[i].height / 2))<=eyeDistance){//exclude matching against itself.
++					//compare the distance between the centers of each eye 
++					//&& (abs(eyes[j].x - eyes[i].x) <= eyeDistance)
++				//	double ratio = (abs((eyes[j].x + eyes[j].height / 2) - (eyes[i].x + eyes[i].height / 2))) / (abs((eyes[i].height * eyes[i].width) + (eyes[j].height * eyes[j].width)) / 2);
++					diagonal = sqrt(pow(eyes[i].height, 2) + pow(eyes[i].width, 2));
++					diagonal2 = sqrt(pow(eyes[j].height, 2) + pow(eyes[j].width, 2));
++					double avgDiag = (diagonal + diagonal2) / 2;
++					double distance = abs(((eyes[j].x + eyes[j].height / 2) - (eyes[i].x + eyes[i].height / 2)));
++					double ratio = avgDiag / distance;
++					//cout << "avg size of pair :" << avgDiag << " " << "distance between pair: " << distance << " " <<"Ratio: " << ratio << endl;
++
++					//track the eyes and their movement from the last frame.
++
++					//average area of the eyes compared to the distance between the two centers
++					//cout << "distance between eyes" << abs(((eyes[j].x + eyes[j].height / 2) - (eyes[i].x + eyes[i].height / 2))) << "average size: " << abs(((eyes[i].height * eyes[i].width) / 2) + ((eyes[j].height * eyes[j].width) / 2) / 2) << " :Ratio to size : " << ratio << endl;
++
++					partnerId = j;
++					colour = Scalar(100,100,100);//will need to randomize this.
++				}
++			}
++			Eyes e = Eyes(eyes[i]);
++			if (partnerId >= 0){// partner was found.
++				e.partnerId = partnerId;
++				e.colour = colour;
++
++
++				//add center point as
++				objectsTracked.push_back(Point());
++			}
++			eyesVect.push_back(e);
++		}	
++
++	return eyesVect;
++
++}
++
++//track eyes from the previous eye positions to the current positions
++void trackEyes(vector<Eyes> currentEyes, vector<Eyes>& pastEyes){
++	//compare current eyes to previous eyes. 
++	// compare centerpoint movement
++	// compare width and height as well?
++	// as I am only dealing with a few eyes per image, i don't need to use a sort or bubble sort. this would work faster,
++	// but when dealing with approx maybe 2-6 eyes at most per image, the benefit drops.
++	
++	// define center distance movement
++	int dist = 10;
++
++	for (int i = 0; i < currentEyes.size(); i++){
++		for (int j = 0; j < pastEyes.size(); j++){
++			if (abs(PointDist(currentEyes[i].center(), pastEyes[j].center())) <= dist){
++				pastEyes[j].colour = Scalar(102, 255, 102);
++				//cout << "past eye linked" << endl;
++			}
++		}
++
++	}
++
++
++
++}
++
++int _tmain(int argc, _TCHAR* argv[])
++{
++	/*
++	//if (!face_cascade.load(face_cascade_name)){ printf("--(!)Error loading face\n"); };
++	if (!eyes_cascade.load(eyes_cascade_name)){ printf("--(!)Error loading eyes\n"); };
++
++
++	//Mat image = getInput();
++	VideoCapture camera(0);
++	if (!camera.isOpened()){  // check if we succeeded
++		cout << "camera not opened" << endl;
++		//return -1;
++	}
++	displayCamera(camera);
++
++	cout << "Program End";
++	getchar();
++
++	return 0;
++
++	*/
++
++	VideoCapture cap;
++	// open the default camera, use something different from 0 otherwise;
++	// Check VideoCapture documentation.
++	if (!cap.open(0))
++		return 0;
++	for (;;)
++	{
++		Mat frame;
++		cap >> frame;
++		if (frame.empty()) break; // end of video stream
++		imshow("this is you, smile! :)", frame);
++		if (waitKey(1) == 27) break; // stop capturing by pressing ESC 
++	}
++	// the camera will be closed automatically upon exit
++	// cap.close();
++	return 0;
++}
++
++// simple equation to detemine the distance between two 2d points.
++double PointDist(Point a, Point b){
++		return sqrt((a.x - b.x)^2 + (a.y - b.y)^2);
++}
++
++
++// when eyes are found, store their locations in the Roi
++void updateRoi(vector<Rect>& Roi, vector<Eyes> eyes , int maxWidth, int maxHeight){
++	// take the eyes found and make an Rect around them, based on how big the eyes are is how big the ROi should be.
++	Roi.clear();
++	int expandSize = 10;
++	for (int i = 0; i < eyes.size(); i++){
++		
++		Rect r = Rect(max(eyes[i].rect.x - expandSize, 0), max(eyes[i].rect.y - expandSize, 0), min((eyes[i].rect.width + expandSize * 2), abs(maxWidth - eyes[i].rect.x)), min(eyes[i].rect.height + expandSize * 2, abs(maxHeight - eyes[i].rect.y)));
++		//cout << "width: " << min((eyes[i].rect.width + expandSize * 2), maxWidth) << endl;
++		//cout <<"stored ROI "<< r << endl;
++		Roi.push_back(r);
++	}
++
++	// if i have overlapping ROi i should probably combine them.
++
++}
++
++bool rectOverlaps(Rect a, vector<Rect> r ){
++	for (int i = 0; i < r.size(); i++){
++		if (a.x + a.width >= r[i].x && a.y + a.height >= r[i].y){
++	//		return Rect(a.x, a.y, abs(a.x - r[i].x) - r[i].width, abs(a.y - r[i].y) - r[i].height);
++			return true;
++		}
++		else if (r[i].x + r[i].width >= a.x && r[i].y + r[i].height >= a.y){
++		//	return Rect(r[i].x, r[i].y, abs(r[i].x - a.x) - a.width, abs(r[i].y - a.y) - a.height);
++			return true;
++		}
++	}
++	
++}
++// check to see if two Rects overlap each other, if they do, 
++// TODO: Improve the code for this check. there should be a way of making the else if unessecary.
++Rect rectOverlaps(Rect a, Rect b){
++	if (a.x + a.width >= b.x && a.y + a.height >= b.y){
++		return Rect(a.x, a.y, abs(a.x - b.x) - b.width, abs(a.y - b.y) - b.height);
++	}
++	else if (b.x + b.width >= a.x && b.y + b.height >= a.y){
++		return Rect(b.x, b.y, abs(b.x - a.x) - a.width, abs(b.y - a.y) - a.height);
++	}
++}	
+\ No newline at end of file
+diff --git a/ROITesting/stdafx.cpp b/ROITesting/stdafx.cpp
+new file mode 100644
+index 0000000..a4e5bdb
+--- /dev/null
++++ b/ROITesting/stdafx.cpp
+@@ -0,0 +1,8 @@
++// stdafx.cpp : source file that includes just the standard includes
++// ROITesting.pch will be the pre-compiled header
++// stdafx.obj will contain the pre-compiled type information
++
++#include "stdafx.h"
++
++// TODO: reference any additional headers you need in STDAFX.H
++// and not in this file
+diff --git a/ROITesting/stdafx.h b/ROITesting/stdafx.h
+new file mode 100644
+index 0000000..b005a83
+--- /dev/null
++++ b/ROITesting/stdafx.h
+@@ -0,0 +1,15 @@
++// stdafx.h : include file for standard system include files,
++// or project specific include files that are used frequently, but
++// are changed infrequently
++//
++
++#pragma once
++
++#include "targetver.h"
++
++#include <stdio.h>
++#include <tchar.h>
++
++
++
++// TODO: reference additional headers your program requires here
+diff --git a/ROITesting/targetver.h b/ROITesting/targetver.h
+new file mode 100644
+index 0000000..87c0086
+--- /dev/null
++++ b/ROITesting/targetver.h
+@@ -0,0 +1,8 @@
++#pragma once
++
++// Including SDKDDKVer.h defines the highest available Windows platform.
++
++// If you wish to build your application for a previous Windows platform, include WinSDKVer.h and
++// set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
++
++#include <SDKDDKVer.h>
+-- 
+2.9.0.windows.1
+
