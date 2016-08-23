@@ -10,9 +10,9 @@ using namespace std;
 
 class ROI{
 public:
-	vector<Rect>pastROI;
+	vector<Rect> pastROI;
 
-	vector<Rect>setROI(vector<Rect>objects);
+	void setROI(vector<Rect>objects);
 	
 	void staticROI();
 

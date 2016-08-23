@@ -7,11 +7,11 @@ Types of Regions of Interests are defined here and can be called from outside th
 */
 
 
-vector<Rect> ROI::setROI(vector<Rect>objects){
-	vector<Rect> ROI;
-	
-
-	return ROI;
+void ROI::setROI(vector<Rect>objects){
+	pastROI.clear();
+	for (int i = 0; i < objects.size(); i++){
+		pastROI.push_back(objects[i]);
+	}
 }
 
 

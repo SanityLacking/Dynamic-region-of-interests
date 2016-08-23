@@ -2,33 +2,22 @@
 //
 
 #include "stdafx.h"
-
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-
-//#include "measurementSuite.h"
 #include "Eyes.h"
 #include "ROIs.h"
 #include "measurementSuite.h"
 #include "faceDetection.h"
-
 #include <time.h> // to calculate time needed
 #include <limits.h> // to get INT_MAX, to protect against overflow
 
-
-// fps counter begin
-time_t tstart, tend;
-int counter = 0;
-double sec;
-double fps;
-// fps counter end
-
 using namespace cv;
 using namespace std;
-
+FaceDetect faceDetect2;
 int displayCamera(VideoCapture& camera);
-void processImage(Mat& frame, ROI& roi, MeasureTool mTool);
+void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect);
+Point frameP(Point resize);
 
 int _tmain(int argc, _TCHAR* argv[]){
 	VideoCapture camera;
@@ -40,17 +29,16 @@ int _tmain(int argc, _TCHAR* argv[]){
 	return 0;
 }
 
-
-
 int displayCamera(VideoCapture& camera){
 	Mat frame;
 	vector<Rect> rec;
 	MeasureTool mTool;
 	ROI roi;
+	FaceDetect faceDetect;
 	for (;;){
 		camera >> frame;
 		mTool.start();//fps counter start
-		processImage(frame, roi, mTool);
+		processImage(frame, roi, mTool,faceDetect);
 		mTool.end();// fps counter end
 		
 		putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
@@ -61,21 +49,27 @@ int displayCamera(VideoCapture& camera){
 }
 
 //do the preliminary processing in this function, this function calls specific processing functions as well.
-void processImage(Mat& frame, ROI& roi, MeasureTool mTool){	
+void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect){	
 	Size frameSize = frame.size();
 	Mat processImg = frame;
 	vector<Rect> objects;
 	
-	
+	//preprocess Blur, color correct, etc	
 
-	//preprocess Blur, color correct, etc
-	
+	for (int i = 0; i < roi.pastROI.size(); ++i){
+		rectangle(frame, roi.pastROI[i], Scalar(0, 155, 255),2);
+	}
+
 
 	//call Detection Method
-	objects = detectFaces(processImg, roi.pastROI);
+	objects = faceDetect.detectFaces(processImg, roi.pastROI);
 	// Draw Detections
 
+	for (int i = 0; i < objects.size(); ++i){
+		//rectangle(frame, objects[i], Scalar(255, 255, 255));
+	}
 
+	cout << "new ROIs" << objects.size() << endl;
 	//Set new ROI
 	roi.setROI(objects);
 
@@ -99,3 +93,7 @@ void processImage(Mat& frame, ROI& roi, MeasureTool mTool){
 	Save Results: T/F
 */
 
+// convert point generated for resized frame to the correct position for the original frame.
+//Point frameP(Point resize){
+	//return Point(resize.x * (frameSize.width / frameWidth), resize.y * (frameSize.height / frameHeight));
+//}
