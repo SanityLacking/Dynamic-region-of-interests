@@ -1,3 +1,6 @@
 opencv2
 x64
 *.sdf
+Debug
+*.opensdf
+*.vcxproj

@@ -40,24 +40,4 @@ void MeasureTool::Iterate(){
 
 }
 */
-void MeasureTool::start(){
-	time(&tstart);
-
-}
-
-void MeasureTool::end(){
-	time(&tend);
-	
-	counter++;
-	sec = difftime(tend, tstart);
-	fps = counter / sec;
-	cout << sec << endl;
-	// overflow protection
-	if (counter == (INT_MAX - 1000))
-		counter = 0;
-}
-
-double MeasureTool::getFPS(){
-	return fps;
-}
 #endif

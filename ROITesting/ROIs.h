@@ -6,9 +6,20 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 using namespace cv;
+using namespace std;
 
-void staticROI();
+class ROI{
+public:
+	vector<Rect>pastROI;
 
-void dyamicROI(Rect rec, enum type);
+	vector<Rect>setROI(vector<Rect>objects);
+	
+	void staticROI();
+
+	void dyamicROI(Rect rec, enum type);
+
+};
+
+
 
 #endif

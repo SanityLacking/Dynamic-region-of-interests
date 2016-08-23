@@ -10,7 +10,8 @@
 //#include "measurementSuite.h"
 #include "Eyes.h"
 #include "ROIs.h"
-
+#include "measurementSuite.h"
+#include "faceDetection.h"
 
 #include <time.h> // to calculate time needed
 #include <limits.h> // to get INT_MAX, to protect against overflow
@@ -27,75 +28,58 @@ using namespace cv;
 using namespace std;
 
 int displayCamera(VideoCapture& camera);
-void processImage(Mat& frame, vector<Rect>& RoiRef);
+void processImage(Mat& frame, ROI& roi, MeasureTool mTool);
 
-int _tmain(int argc, _TCHAR* argv[])
-{
+int _tmain(int argc, _TCHAR* argv[]){
 	VideoCapture camera;
-	if (!camera.open(0))
+	if (!camera.open(0)){ 
+		cout << "Camera Is not able to be Opened, is it connected?" << endl; 
 		return 0;
+	}
 	displayCamera(camera);
-	
 	return 0;
 }
 
 
 
 int displayCamera(VideoCapture& camera){
-
 	Mat frame;
 	vector<Rect> rec;
-	//MeasureTool mTool;
-	
+	MeasureTool mTool;
+	ROI roi;
 	for (;;){
-		if (counter == 0){
-			time(&tstart);
-		}
-		// fps counter end
-
 		camera >> frame;
-	
-		//mTool.start();
-		processImage(frame, rec);
-		//mTool.end();
-
-		time(&tend);
-		counter++;
-		sec = difftime(tend, tstart);
-		fps = counter / sec;
-		if (counter > 30)
-
-			// overflow protection
-			if (counter == (INT_MAX - 1000))
-				counter = 0;
-		// fps counter end
-		putText(frame, "fps: " + to_string(fps), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
-
-	//	putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
+		mTool.start();//fps counter start
+		processImage(frame, roi, mTool);
+		mTool.end();// fps counter end
+		
+		putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
 		imshow("output", frame);
 		if (waitKey(1) == 27) break;
 	}
-	
-	
 	return 0;
 }
 
 //do the preliminary processing in this function, this function calls specific processing functions as well.
-void processImage(Mat& frame, vector<Rect>& RoiRef){
-	
+void processImage(Mat& frame, ROI& roi, MeasureTool mTool){	
 	Size frameSize = frame.size();
 	Mat processImg = frame;
+	vector<Rect> objects;
+	
+	
 
 	//preprocess Blur, color correct, etc
-
+	
 
 	//call Detection Method
+	objects = detectFaces(processImg, roi.pastROI);
+	// Draw Detections
 
 
-	//Set ROI
+	//Set new ROI
+	roi.setROI(objects);
 
-
-
+	//store results if need be.	
 }
 
 /*
