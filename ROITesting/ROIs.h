@@ -10,14 +10,19 @@ using namespace std;
 
 class ROI{
 public:
+	//vars
+	Size frameSize;
+	int expansion = 10;
+
+
+	//constructor
+	ROI(Size s);
+
+	//functions
 	vector<Rect> pastROI;
-
-	void setROI(vector<Rect>objects);
-	
+	void setROI(vector<Rect>objects,Size s);
 	void staticROI();
-
 	void dyamicROI(Rect rec, enum type);
-
 };
 
 

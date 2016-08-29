@@ -12,7 +12,7 @@ using namespace std;
 class FaceDetect{
 public:
 	cv::String eyes_cascade_name = "haarcascades/haarcascade_eye_tree_eyeglasses.xml";
-	cv::String face_cascade_name = "haarcascades/haarcascade_frontalface.xml";
+	cv::String face_cascade_name = "haarcascades/haarcascade_frontalface_alt.xml";
 
 	CascadeClassifier face_cascade;
 	CascadeClassifier eyes_cascade;
@@ -20,9 +20,12 @@ public:
 	//constructor
 	FaceDetect();
 	//functions
-	vector<Rect> detectFaces(Mat input, vector<Rect>pastROI);
+	
 	double PointDist(Point a, Point b);
 	//vector<Eyes> partnerEyes(vector<Rect>eyes);
+
+	vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef);
+	vector<Rect> FaceDetect::detectFaces(Mat& frame);
 	vector<Rect> detectEyes(Mat& frame);
 	vector<Rect> detectEyes(Mat& frame, vector<Rect>& Roi);
 	void trackEyes(vector<Eyes> currentEyes, vector<Eyes>& pastEyes);

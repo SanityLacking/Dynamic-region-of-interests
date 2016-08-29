@@ -441,7 +441,11 @@ void updateRoi(vector<Rect>& Roi, vector<Eyes> eyes , int maxWidth, int maxHeigh
 	int expandSize = 10;
 	for (int i = 0; i < eyes.size(); i++){
 		
-		Rect r = Rect(max(eyes[i].rect.x - expandSize, 0), max(eyes[i].rect.y - expandSize, 0), min((eyes[i].rect.width + expandSize * 2), abs(maxWidth - eyes[i].rect.x)), min(eyes[i].rect.height + expandSize * 2, abs(maxHeight - eyes[i].rect.y)));
+		Rect r = Rect(
+			max(eyes[i].rect.x - expandSize, 0),
+			max(eyes[i].rect.y - expandSize, 0),
+			min((eyes[i].rect.width + expandSize * 2),	abs(maxWidth - eyes[i].rect.x)),
+			min(eyes[i].rect.height + expandSize * 2,  abs(maxHeight - eyes[i].rect.y)));
 		//cout << "width: " << min((eyes[i].rect.width + expandSize * 2), maxWidth) << endl;
 		//cout <<"stored ROI "<< r << endl;
 		Roi.push_back(r);

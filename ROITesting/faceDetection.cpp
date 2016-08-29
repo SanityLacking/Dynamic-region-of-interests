@@ -6,13 +6,70 @@
 using namespace std;
 
 FaceDetect::FaceDetect(){
+	if (!face_cascade.load(face_cascade_name)){ printf("--(!)Error loading face\n"); };
 	if (!eyes_cascade.load(eyes_cascade_name)){ printf("--(!)Error loading eyes\n"); };
 }
-vector<Rect> FaceDetect::detectFaces(Mat input, vector<Rect>pastROI){
-	vector<Rect> ROI;
-	vector<Rect> eyes = detectEyes(input, pastROI);
-	
-	return eyes;
+
+vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef){
+	vector<Rect> faces;
+	bool noRoi = true;
+	if (RoiRef.size() > 0){	//if Roi is present use Roi.
+		cout << "ROI Present " << RoiRef.size() << endl;
+		noRoi = false;
+		for (int i = 0; i < RoiRef.size(); i++){
+			//	cout << "ROISize" << RoiRef[i]<<endl;
+			Mat RoiFrame = frame(RoiRef[i]);
+			Mat& RoiFrameRef = RoiFrame;
+			//rectangle(frame, RoiRef[i], Scalar(0, 155, 255), 2);
+			vector<Rect> faces2 = detectFaces(RoiFrameRef);
+			for (int j = 0; j < faces2.size(); j++){
+				faces.push_back(frameRoi(faces2[j], Point(RoiRef[i].x, RoiRef[i].y)));
+			}
+			//faces.insert(faces.end(), faces2.begin(), faces2.end()); //insert all of faces2 into the return value.
+		}
+		cout << "ROI FACES: " << faces.size() << endl;
+
+	}
+	else{	// if no Roi is present, scan whole image.
+		cout << "no ROI Present" << endl;
+		faces = detectFaces(frame);
+	}
+
+	if (faces.size() == 0 && noRoi == false){	// if an Roi was used but no results were found, scan whole image.
+		cout << "no faces within ROI" << endl;
+		faces = detectFaces(frame);
+	}
+	cout << "number of faces detected " << faces.size() << endl;
+
+	for (int i = 0; i < faces.size(); i++){
+		for (int j = 0; j < faces.size(); j++){
+			if ((faces[j].x > faces[i].x && faces[j].x < faces[i].x + faces[i].width) && (faces[j].y > faces[i].y && faces[j].y < faces[i].y + faces[i].height)){ // if j is within i 
+				if (faces[j].width + faces[j].height < faces[i].width + faces[i].height){// if J is smaller then I
+					//cout << "overlapping faces detected" << endl;
+					faces.erase(faces.begin() + j);
+				}
+			}
+		}
+	}
+	return faces;
+}
+
+vector<Rect> FaceDetect::detectFaces(Mat& frame){
+	vector<Rect> faces;
+	face_cascade.detectMultiScale(frame, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(40, 40), Size(340, 340));
+	/*
+	for (int i = 0; i < faces.size(); i++){
+		for (int j = 0; j < faces.size(); j++){
+			if ((faces[j].x > faces[i].x && faces[j].x < faces[i].x + faces[i].width) && (faces[j].y > faces[i].y && faces[j].y < faces[i].y + faces[i].height)){ // if j is within i 
+				if (faces[j].width + faces[j].height < faces[i].width + faces[i].height){// if J is smaller then I
+					//cout << "overlapping faces detected" << endl;
+					faces.erase(faces.begin() + j);
+				}
+			}
+		}
+	}
+	*/
+	return faces;
 }
 
 vector<Rect> FaceDetect::detectEyes(Mat& frame, vector<Rect>& RoiRef){
@@ -25,7 +82,8 @@ vector<Rect> FaceDetect::detectEyes(Mat& frame, vector<Rect>& RoiRef){
 			//	cout << "ROISize" << RoiRef[i]<<endl;
 			Mat RoiFrame = frame(RoiRef[i]);
 			Mat& RoiFrameRef = RoiFrame;
-			rectangle(frame, RoiRef[i], Scalar(0, 155, 255), 2);
+			imshow("ROI", RoiFrame);
+			//rectangle(frame, RoiRef[i], Scalar(0, 155, 255), 2);
 			vector<Rect> eyes2 = detectEyes(RoiFrameRef);
 			for (int j = 0; j < eyes2.size(); j++){
 				eyes.push_back(frameRoi(eyes2[j], Point(RoiRef[i].x, RoiRef[i].y)));

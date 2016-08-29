@@ -14,7 +14,6 @@
 
 using namespace cv;
 using namespace std;
-FaceDetect faceDetect2;
 int displayCamera(VideoCapture& camera);
 void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect);
 Point frameP(Point resize);
@@ -33,7 +32,8 @@ int displayCamera(VideoCapture& camera){
 	Mat frame;
 	vector<Rect> rec;
 	MeasureTool mTool;
-	ROI roi;
+	cout << "frame size start: "<< frame.size << endl;
+	ROI roi(frame.size());
 	FaceDetect faceDetect;
 	for (;;){
 		camera >> frame;
@@ -56,23 +56,19 @@ void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect
 	
 	//preprocess Blur, color correct, etc	
 
-	for (int i = 0; i < roi.pastROI.size(); ++i){
-		rectangle(frame, roi.pastROI[i], Scalar(0, 155, 255),2);
-	}
-
-
 	//call Detection Method
 	objects = faceDetect.detectFaces(processImg, roi.pastROI);
 	// Draw Detections
 
 	for (int i = 0; i < objects.size(); ++i){
-		//rectangle(frame, objects[i], Scalar(255, 255, 255));
+		rectangle(frame, objects[i], Scalar(255, 255, 255));
+	}
+	for (int i = 0; i < roi.pastROI.size(); ++i){
+		rectangle(frame, roi.pastROI[i], Scalar(0, 155, 255),2);
 	}
 
-	cout << "new ROIs" << objects.size() << endl;
 	//Set new ROI
-	roi.setROI(objects);
-
+	roi.setROI(objects,frame.size());
 	//store results if need be.	
 }
 
