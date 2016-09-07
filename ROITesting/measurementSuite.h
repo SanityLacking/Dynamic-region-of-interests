@@ -8,8 +8,15 @@
 
 #include "stdafx.h"
 
-#include <iostream>
+#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
 using namespace std;
+
+#include <iostream>
+using std::string;
+
 class MeasureTool{
 public:
 	// fps counter begin
@@ -22,6 +29,14 @@ public:
 	double getFPS();
 	void start();
 	void end();
+	string outputResults();
+	void updateStats(vector<Rect>PastRoi);
+
+private:
+	int frameCounter = 0;
+	vector<double> frameProcessTime;
+	vector<int> ROIsFound;
+	vector<vector <Rect> > PastROIs;
 	
 };
 

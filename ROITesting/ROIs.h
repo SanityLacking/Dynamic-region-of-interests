@@ -1,6 +1,5 @@
-
-#ifndef ROIs_H
-#define ROIs_H
+#ifndef ROIS_H
+#define ROIS_H
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -18,7 +17,9 @@ public:
 	//constructor
 	ROI(Size s);
 
+	
 	//functions
+	vector<Rect> currentROI;
 	vector<Rect> pastROI;
 	void setROI(vector<Rect>objects,Size s);
 	void staticROI();

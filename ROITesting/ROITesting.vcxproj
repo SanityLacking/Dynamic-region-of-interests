@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="faceDetection.h" />
+    <ClInclude Include="FileOutput.h" />
     <ClInclude Include="measurementSuite.h" />
     <ClInclude Include="ROIs.h" />
     <ClInclude Include="stdafx.h" />
@@ -161,6 +162,7 @@
     <ClCompile Include="measurementSuite.cpp" />
     <ClCompile Include="ROIs.cpp" />
     <ClCompile Include="ROITesting.cpp" />
+    <ClCompile Include="FileOutput.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

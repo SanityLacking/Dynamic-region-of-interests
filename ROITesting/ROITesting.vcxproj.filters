@@ -33,6 +33,9 @@
     <ClInclude Include="faceDetection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FileOutput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="faceDetection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileOutput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

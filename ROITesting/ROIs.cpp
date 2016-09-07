@@ -14,7 +14,6 @@ ROI::ROI(Size s){
 void ROI::setROI(vector<Rect>objects,Size s){
 	frameSize = s;
 	pastROI.clear();
-	cout << "frameSize: "<< frameSize << endl;
 	for (int i = 0; i < objects.size(); i++){
 		cout << "X: " << max(objects[i].x - expansion, 0) << " Y: " << max(objects[i].y - expansion, 0) <<endl;
 		cout << "width: " << min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x )) << " Height: " << min(objects[i].height + expansion * 2, abs(frameSize.height -objects[i].y)) << endl;
