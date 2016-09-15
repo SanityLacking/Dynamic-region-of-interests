@@ -9,6 +9,8 @@
 #include "ROIs.h"
 #include "measurementSuite.h"
 #include "faceDetection.h"
+#include "PersistentData.h"
+#include "ObservableData.h"
 #include <time.h> // to calculate time needed
 #include <chrono>
 #include <limits.h> // to get INT_MAX, to protect against overflow
@@ -24,7 +26,8 @@ using namespace std;
 bool displayBool =  true;
 bool storeBool = true;
 bool fileFinished = false;
-
+string detectMethod = "face";
+string roiMethod = "dynamicRecenter";
 //depending on which method is run, the output string here is changed.
 //eg: dynamic_recentering, static_control, dynamic_kalman.
 string outputString = "dynamic_recentering";
@@ -32,7 +35,6 @@ string outputString = "dynamic_recentering";
 string outputHeader = "frame, ROI found, ROI location, ROI size, frame process time \n";
 int displayCamera(VideoCapture& camera);
 void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect);
-int storeResults(MeasureTool mTool, ROI roi);
 Point frameP(Point resize);
 
 
@@ -57,8 +59,9 @@ int displayCamera(VideoCapture& camera){
 	Mat frame;
 	vector<Rect> rec;
 	MeasureTool mTool;
+	persistentData persistData;
 	cout << "frame size start: "<< frame.size << endl;
-	ROI roi(frame.size());
+	ROI roi(frame.size(),roiMethod);
 	FaceDetect faceDetect;
 
 	for (;;){
@@ -68,12 +71,12 @@ int displayCamera(VideoCapture& camera){
 			fileFinished = true;
 			break; //the file has finished or the web camera has stopped sending frames.
 		}
-		mTool.updateStats(roi.pastROI);
 
 		mTool.start();//fps counter start
 		processImage(frame, roi, mTool,faceDetect);
-		mTool.end();// fps counter end
-		
+		mTool.end();
+		//persistData.store(roi.pastROI, mTool.end());
+
 		if (displayBool){
 			putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
 			imshow("output", frame);
@@ -82,8 +85,7 @@ int displayCamera(VideoCapture& camera){
 			}
 		}
 	}
-	storeResults(mTool, roi);
-
+	persistData.storeToFile(outputString);
 	return 0;
 }
 
@@ -96,9 +98,19 @@ void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect
 	//preprocess Blur, color correct, etc	
 
 	//call Detection Method
-	objects = faceDetect.detectFaces(processImg, roi.pastROI);
+		objects = faceDetect.detectFaces(processImg, roi.pastROI);
+	/*
+	else if (detectMethod == "eyes"){
+		// implemented only eye detection good test of multiple ROI tracking
+		objects = faceDetect.detectFaces(processImg, roi.pastROI);
+	}
+	else if (detectMethod == "corners"){
+		// implemented corner detection. works by detecting a group of corners and determining the smallest rect that contains them.
+		// remember to remove outliers.
+		objects = faceDetect.detectFaces(processImg, roi.pastROI);
+	}
 	// Draw Detections
-
+	*/
 	for (int i = 0; i < objects.size(); ++i){
 		rectangle(frame, objects[i], Scalar(255, 255, 255));
 	}
@@ -107,7 +119,8 @@ void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect
 	}
 
 	//Set new ROI
-	roi.setROI(objects,frame.size());
+	roi.setROI(objects, frame.size());
+	
 	//store results if need be.	
 }
 
@@ -132,26 +145,3 @@ void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect
 //Point frameP(Point resize){
 	//return Point(resize.x * (frameSize.width / frameWidth), resize.y * (frameSize.height / frameHeight));
 //}
-
-// after input has finished, finialize results and store them in an excel document for further comparasion. 
-int storeResults(MeasureTool mTool, ROI roi){
-	ofstream myfile;
-	struct tm timeinfo;
-	time_t now;
-	now = time(NULL);
-	auto t = std::time(nullptr);
-	localtime_s(&timeinfo, &now);
-	std::ostringstream oss;
-	oss << std::put_time(&timeinfo, "%Y%m%d%H%M");
-	auto str = oss.str();
-
-	if (!fileFinished)
-		outputString += "_unfinished";
-	string output_name = ".\\output\\"+outputString+ "_" +str+".csv";
-	myfile.open(output_name);
-	myfile << outputHeader;
-	myfile << mTool.outputResults();
-	myfile.close();
-	return 0;
-
-}

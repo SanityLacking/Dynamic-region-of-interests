@@ -14,7 +14,8 @@ void MeasureTool::start(){
 
 }
 
-void MeasureTool::end(){
+
+double MeasureTool::end(){
 	time(&tend);
 
 	counter++;
@@ -25,10 +26,9 @@ void MeasureTool::end(){
 	// overflow protection
 	if (counter == (INT_MAX - 1000))
 		counter = 0;
-	
-	
-}
 
+	return sec;
+}
 double MeasureTool::getFPS(){
 	return fps;
 }

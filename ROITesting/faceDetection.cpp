@@ -17,27 +17,30 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef){
 		cout << "ROI Present " << RoiRef.size() << endl;
 		noRoi = false;
 		for (int i = 0; i < RoiRef.size(); i++){
-			//	cout << "ROISize" << RoiRef[i]<<endl;
 			Mat RoiFrame = frame(RoiRef[i]);
 			Mat& RoiFrameRef = RoiFrame;
-			//rectangle(frame, RoiRef[i], Scalar(0, 155, 255), 2);
 			vector<Rect> faces2 = detectFaces(RoiFrameRef);
 			for (int j = 0; j < faces2.size(); j++){
 				faces.push_back(frameRoi(faces2[j], Point(RoiRef[i].x, RoiRef[i].y)));
 			}
-			//faces.insert(faces.end(), faces2.begin(), faces2.end()); //insert all of faces2 into the return value.
 		}
 		cout << "ROI FACES: " << faces.size() << endl;
-
 	}
-	else{	// if no Roi is present, scan whole image.
+	else{	// if no Roi is present, no objects were detected in the last frame scan whole image.                                                                             
 		cout << "no ROI Present" << endl;
 		faces = detectFaces(frame);
 	}
 
-	if (faces.size() == 0 && noRoi == false){	// if an Roi was used but no results were found, scan whole image.
+	if (faces.size() == 0 && noRoi == false){	// if an Roi was present but no results were found, scan whole image.
 		cout << "no faces within ROI" << endl;
 		faces = detectFaces(frame);
+		/*else if (fallbackMethod == "expandBox"){
+			for (int i = 0; i < RoiRef.size(); i++){
+				expandRect(RoiRef[i], 50, frame.size());
+			}
+
+		}*/
+		//either the program expands the boxes or scans the whole img. to know this, I need to know what to do from the ROI.
 	}
 	cout << "number of faces detected " << faces.size() << endl;
 
@@ -146,4 +149,14 @@ vector<Rect> FaceDetect::detectEyes(Mat& frame){
 Rect FaceDetect::frameRoi(Rect obj, Point roiPoint){
 	return Rect(obj.x + roiPoint.x, obj.y + roiPoint.y, obj.width, obj.height);
 
+}
+
+// expand rectangle r by amount s. s is applied to each side. so if 10 is given for s, the rectangle will grow by 20.
+void expandRect(Rect& r, int s, Size frameSize){
+	r = Rect(
+		r.x - s,
+		r.y - s,
+		min(r.width + s * 2, abs(frameSize.width - r.x)),
+		min(r.height + s * 2, abs(frameSize.height - r.y))
+		);
 }

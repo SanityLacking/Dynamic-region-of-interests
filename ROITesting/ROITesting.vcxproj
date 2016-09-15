@@ -153,6 +153,8 @@
     <ClInclude Include="faceDetection.h" />
     <ClInclude Include="FileOutput.h" />
     <ClInclude Include="measurementSuite.h" />
+    <ClInclude Include="ObservableData.h" />
+    <ClInclude Include="PersistentData.h" />
     <ClInclude Include="ROIs.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -160,6 +162,8 @@
   <ItemGroup>
     <ClCompile Include="faceDetection.cpp" />
     <ClCompile Include="measurementSuite.cpp" />
+    <ClCompile Include="ObservableData.cpp" />
+    <ClCompile Include="PersistentData.cpp" />
     <ClCompile Include="ROIs.cpp" />
     <ClCompile Include="ROITesting.cpp" />
     <ClCompile Include="FileOutput.cpp" />

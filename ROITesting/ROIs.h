@@ -12,18 +12,27 @@ public:
 	//vars
 	Size frameSize;
 	int expansion = 10;
+	string ROIType = "static";
+	vector<Rect> currentROI;
+	vector<Rect> pastROI;
+	const string typesArray[3];
 
 
 	//constructor
 	ROI(Size s);
+	ROI(Size s, string type);
 
 	
+	
 	//functions
-	vector<Rect> currentROI;
-	vector<Rect> pastROI;
-	void setROI(vector<Rect>objects,Size s);
-	void staticROI();
-	void dyamicROI(Rect rec, enum type);
+
+	int setROI(vector<Rect>objects,Size s);
+	//void staticROI(vector<Rect>objects, Size s);
+	void dyamicROI(vector<Rect>objects, Size s);
+
+private:
+	void dynamicRecenterROI(vector<Rect>& objects, Size& s);
+	void staticROI(vector<Rect>& objects, Size& s);
 };
 
 

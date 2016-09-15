@@ -36,6 +36,12 @@
     <ClInclude Include="FileOutput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObservableData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PersistentData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -54,6 +60,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObservableData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PersistentData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -28,7 +28,7 @@ public:
 	//MeasureTool();//constructor
 	double getFPS();
 	void start();
-	void end();
+	double end();
 	string outputResults();
 	void updateStats(vector<Rect>PastRoi);
 
