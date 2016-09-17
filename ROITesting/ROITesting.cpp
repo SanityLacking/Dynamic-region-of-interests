@@ -34,8 +34,10 @@ string outputString = "dynamic_recentering";
 
 string outputHeader = "frame, ROI found, ROI location, ROI size, frame process time \n";
 int displayCamera(VideoCapture& camera);
-void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect);
+void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect);
 Point frameP(Point resize);
+MeasureTool mTool;
+persistentData persistData;
 
 
 /*todo: add parameters as options to allow for the program to be called multiple times by process.
@@ -58,10 +60,9 @@ int _tmain(int argc, _TCHAR* argv[]){
 int displayCamera(VideoCapture& camera){
 	Mat frame;
 	vector<Rect> rec;
-	MeasureTool mTool;
-	persistentData persistData;
+	ObsData obsData(persistData);
 	cout << "frame size start: "<< frame.size << endl;
-	ROI roi(frame.size(),roiMethod);
+	ROI roi(frame.size(),obsData);
 	FaceDetect faceDetect;
 
 	for (;;){
@@ -72,33 +73,34 @@ int displayCamera(VideoCapture& camera){
 			break; //the file has finished or the web camera has stopped sending frames.
 		}
 
-		mTool.start();//fps counter start
-		processImage(frame, roi, mTool,faceDetect);
-		mTool.end();
-		//persistData.store(roi.pastROI, mTool.end());
+		processImage(frame, roi, faceDetect);
 
 		if (displayBool){
-			putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
 			imshow("output", frame);
 			if (waitKey(1) == 27) {
 				break;
 			}
 		}
+		cout << "persist data: " << persistData.currentData.size()<<endl;
 	}
 	persistData.storeToFile(outputString);
 	return 0;
 }
 
 //do the preliminary processing in this function, this function calls specific processing functions as well.
-void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect){	
+void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){	
 	Size frameSize = frame.size();
 	Mat processImg = frame;
-	vector<Rect> objects;
-	
-	//preprocess Blur, color correct, etc	
 
-	//call Detection Method
-		objects = faceDetect.detectFaces(processImg, roi.pastROI);
+	vector<Rect> objects;
+	//preprocess Blur, color correct, etc	
+	
+	mTool.start();//fps counter start
+	objects = faceDetect.detectFaces(processImg, roi.getROI());
+	roi.setROI(objects, mTool.end(), frame.size());
+
+
+	//mTool.end();
 	/*
 	else if (detectMethod == "eyes"){
 		// implemented only eye detection good test of multiple ROI tracking
@@ -118,8 +120,10 @@ void processImage(Mat& frame, ROI& roi, MeasureTool mTool, FaceDetect faceDetect
 		rectangle(frame, roi.pastROI[i], Scalar(0, 155, 255),2);
 	}
 
+	if (displayBool){
+		putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
+	}
 	//Set new ROI
-	roi.setROI(objects, frame.size());
 	
 	//store results if need be.	
 }

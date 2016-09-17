@@ -1,5 +1,6 @@
 #ifndef ROIS_H
 #define ROIS_H
+#include "ObservableData.h"
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -17,21 +18,22 @@ public:
 	vector<Rect> pastROI;
 	const string typesArray[3];
 
-
 	//constructor
 	ROI(Size s);
-	ROI(Size s, string type);
+	ROI(Size s, ObsData& obsData);
 
 	
 	
 	//functions
-
-	int setROI(vector<Rect>objects,Size s);
+	vector<Rect> getROI();
+	int setROI(vector<Rect>objects, double time, Size s);
 	//void staticROI(vector<Rect>objects, Size s);
 	void dyamicROI(vector<Rect>objects, Size s);
 
 private:
-	void dynamicRecenterROI(vector<Rect>& objects, Size& s);
+	ObsData obsData;
+
+	void dynamicRecenterROI(vector<Rect>& objects, double time, Size& s);
 	void staticROI(vector<Rect>& objects, Size& s);
 };
 

@@ -15,6 +15,8 @@ persistentData::persistentData(){
 }
 // add vector of rects to be stored to the local memory. until storetofile is called they will not be saved to a file.
 void persistentData::store(vector<Rect>objects, double time){
+	cout << "store: "<<objects.size() << "saved so far: "<< currentData.size()<< endl;
+
 	currentData.push_back(objects);
 	processTime.push_back(time);
 }
@@ -37,10 +39,11 @@ void persistentData::storeToFile(string filename, bool fileFinished){
 	std::ostringstream oss;
 	oss << std::put_time(&timeinfo, "%Y%m%d%H%M");
 	auto str = oss.str();
-
 	if (!fileFinished)
 		filename += "_unfinished";
 	string output_name = ".\\output\\" + filename + "_" + str + ".csv";
+	cout << output_name << endl;
+	cout << currentData.size() << endl;
 	myfile.open(output_name);
 	myfile << outputHeader;
 	myfile << outputResults();
@@ -66,6 +69,7 @@ string persistentData::outputResults(){
 		}
 		output += "," + to_string(processTime[i]);
 		output += "\n";
+		cout << output << endl;
 	}
 	return output;
 

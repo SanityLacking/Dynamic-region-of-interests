@@ -21,6 +21,8 @@ double MeasureTool::end(){
 	counter++;
 	sec = difftime(tend, tstart);
 	fps = round(counter / sec);
+	//double scale = 0.01;  // i.e. round to nearest one-hundreth
+	//fps = floor(fps / scale + 0.5) * scale;
 	//cout << (int)fps << endl;
 	//cout << tstart << " " << tend << endl;
 	// overflow protection

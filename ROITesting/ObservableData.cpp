@@ -1,29 +1,38 @@
 #include "ObservableData.h"
+#include "PersistentData.h"
 #include <iostream>
 using namespace std;
 
-obsData::obsData(){
+ObsData::ObsData(persistentData& pData):persistData(pData){
 
 }
 
-void obsData::set(vector<Rect>objects, Size s){
-	frameSize = s;
+ObsData::ObsData(){
+
+}
+
+
+void ObsData::set(vector<Rect>& objects, double& t){
 	pastROI.clear();
+	pastTime = t;
 	for (int i = 0; i < objects.size(); i++){
 		pastROI.push_back(objects[i]);
 	}
+	store();
+	cout << pastROI.size() << " ROIs saved" << endl;
 }
 /*
 vector<Rect>  obsData::getCurrent(){
 	return pastROI;
 }
 */
-vector<Rect> obsData::getPast(){
+vector<Rect> ObsData::getPast(){
 	return pastROI;
 }
 
-void obsData::store(vector<Rect>objects){
-
+void ObsData::store(){
+	cout << "ObsData: " << persistData.currentData.size() << endl;
+	persistData.store(pastROI,pastTime);
 }
 
 

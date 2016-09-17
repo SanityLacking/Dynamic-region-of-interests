@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ROIs.h"
+#include "ObservableData.h"
 #include <iostream>
 using namespace std;
 
@@ -11,18 +12,17 @@ ROI::ROI(Size s){
 	expansion = 20;
 }
 
-ROI::ROI(Size s, string type){
-	//frameSize = s;
-	int typesCount = 0;
-	//for (int i = 0; i<typesArra)y
-	if (typesArray + 3 != find(typesArray, typesArray + 3, type))
-		ROIType = type;
+ROI::ROI(Size s, ObsData& obs):obsData(obs){
 	expansion = 20;
 }
 
-int ROI::setROI(vector<Rect>objects,Size s){
+vector<Rect> ROI::getROI(){
+	return obsData.getPast();
+}
+
+int ROI::setROI(vector<Rect>objects, double time, Size s){
 	frameSize = s;
-	dynamicRecenterROI(objects, frameSize);
+	dynamicRecenterROI(objects, time, frameSize);
 	return 1;
 }
 
@@ -93,8 +93,8 @@ void ROI::dyamicROI(vector<Rect>objects, Size s){
 /* Dynamic Recenter ROI: each time an object is detected the ROI draws itself around the object. 
 
 */
-void ROI::dynamicRecenterROI(vector<Rect>& objects, Size& s){
-	pastROI.clear();
+void ROI::dynamicRecenterROI(vector<Rect>& objects, double time, Size& s){
+	vector<Rect> outputROI;
 	for (int i = 0; i < objects.size(); i++){
 		Rect r = Rect(
 			objects[i].x - expansion,
@@ -102,7 +102,7 @@ void ROI::dynamicRecenterROI(vector<Rect>& objects, Size& s){
 			min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x)),
 			min(objects[i].height + expansion * 2, abs(frameSize.height - objects[i].y))
 			);
-		pastROI.push_back(r);
+		outputROI.push_back(r);
 	}
-	cout << "saved ROI:" <<pastROI.size() << endl;
+	obsData.set(outputROI, time);
 }
