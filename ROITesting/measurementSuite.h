@@ -1,24 +1,21 @@
-
+#pragma once
 #ifndef MEASUREMENTSUITE_H
 #define MEASUREMENTSUITE_H
 
+ #include "stdafx.h"
 
 #include <time.h> // to calculate time needed
 #include <limits.h> // to get INT_MAX, to protect against overflow
-
-#include "stdafx.h"
-
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-using namespace cv;
-using namespace std;
-
 #include <iostream>
-using std::string;
+#include <vector>
 
+using namespace std;
 class MeasureTool{
 public:
+
+	MeasureTool();
+	
+
 	// fps counter begin
 	time_t tstart, tend;
 	int counter = 0;
@@ -30,13 +27,11 @@ public:
 	void start();
 	double end();
 	string outputResults();
-	void updateStats(vector<Rect>PastRoi);
 
 private:
 	int frameCounter = 0;
-	vector<double> frameProcessTime;
-	vector<int> ROIsFound;
-	vector<vector <Rect> > PastROIs;
+	std::vector<double> frameProcessTime;
+	std::vector<int> ROIsFound;
 	
 };
 

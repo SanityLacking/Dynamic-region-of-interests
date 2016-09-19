@@ -7,12 +7,12 @@ ObsData::ObsData(persistentData& pData):persistData(pData){
 
 }
 
-ObsData::ObsData(){
-
+ObsData::ObsData() : persistData(DefaultPersistData) {
+	
 }
 
 
-void ObsData::set(vector<Rect>& objects, double& t){
+void ObsData::set(const vector<Rect>& objects, const double& t){
 	pastROI.clear();
 	pastTime = t;
 	for (int i = 0; i < objects.size(); i++){

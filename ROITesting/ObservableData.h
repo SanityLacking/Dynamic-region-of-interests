@@ -15,15 +15,19 @@ public:
 	ObsData(persistentData& persistData);
 
 	//functions
-	void set(vector<Rect>& objects, double& time);
+	void set(const vector<Rect>& objects, const double& time);
 	vector<Rect>  getCurrent();
 	vector<Rect>  getPast();
+	
+	persistentData& persistData;
+	
 private:
 	vector<Rect> currentROI;
 	vector<Rect> pastROI;
+	persistentData DefaultPersistData;	//if no reference to an Obs Data, the class will use this one.
 	double pastTime;
 	
-	persistentData persistData;
+	
 	void store();
 };
 #endif

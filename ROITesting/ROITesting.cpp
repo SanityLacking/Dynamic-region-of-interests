@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include <Windows.h>
+
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -20,8 +22,14 @@
 #include <ctime>
 #include <sstream>
 
+
 using namespace cv;
 using namespace std;
+
+LARGE_INTEGER timeFrequency;
+LARGE_INTEGER timeStart;
+LARGE_INTEGER timeEnd;
+double elapsedSeconds;
 
 bool displayBool =  true;
 bool storeBool = true;
@@ -37,7 +45,6 @@ int displayCamera(VideoCapture& camera);
 void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect);
 Point frameP(Point resize);
 MeasureTool mTool;
-persistentData persistData;
 
 
 /*todo: add parameters as options to allow for the program to be called multiple times by process.
@@ -60,28 +67,24 @@ int _tmain(int argc, _TCHAR* argv[]){
 int displayCamera(VideoCapture& camera){
 	Mat frame;
 	vector<Rect> rec;
+	persistentData persistData;
 	ObsData obsData(persistData);
 	cout << "frame size start: "<< frame.size << endl;
 	ROI roi(frame.size(),obsData);
 	FaceDetect faceDetect;
+	QueryPerformanceFrequency(&timeFrequency);
 
 	for (;;){
 		frame.release();
 		camera >> frame;
-		if (frame.empty()){
-			fileFinished = true;
-			break; //the file has finished or the web camera has stopped sending frames.
-		}
-
+		if (frame.empty())break; //the file has finished or the web camera has stopped sending frames.
 		processImage(frame, roi, faceDetect);
-
 		if (displayBool){
 			imshow("output", frame);
 			if (waitKey(1) == 27) {
 				break;
 			}
 		}
-		cout << "persist data: " << persistData.currentData.size()<<endl;
 	}
 	persistData.storeToFile(outputString);
 	return 0;
@@ -94,10 +97,19 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 
 	vector<Rect> objects;
 	//preprocess Blur, color correct, etc	
+	//mTool.start();//fps counter start
+	QueryPerformanceCounter(&timeStart);
 	
-	mTool.start();//fps counter start
 	objects = faceDetect.detectFaces(processImg, roi.getROI());
-	roi.setROI(objects, mTool.end(), frame.size());
+	
+	QueryPerformanceCounter(&timeEnd);
+	LARGE_INTEGER second = { 1 };
+	double sec = (timeEnd.QuadPart - timeStart.QuadPart);
+	elapsedSeconds = (timeEnd.QuadPart - timeStart.QuadPart) / (double)timeFrequency.QuadPart;
+	double fps = floor((1 / elapsedSeconds)/0.01 +0.5)*0.01;
+	
+
+	roi.setROI(objects, sec , frame.size());
 
 
 	//mTool.end();
@@ -121,7 +133,7 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 	}
 
 	if (displayBool){
-		putText(frame, "fps: " + to_string(mTool.getFPS()), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
+		putText(frame, "fps: " + to_string(fps), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
 	}
 	//Set new ROI
 	

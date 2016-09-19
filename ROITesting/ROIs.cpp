@@ -7,21 +7,29 @@ using namespace std;
 /*
 Types of Regions of Interests are defined here and can be called from outside the class.
 */
-ROI::ROI(Size s){
+ROI::ROI(Size s, ObsData& obs): obsData(obs) {
+	expansion = 20;
+}
+
+ROI::ROI(Size s): obsData(DefaultObsData){
 	//frameSize = s;
 	expansion = 20;
 }
 
-ROI::ROI(Size s, ObsData& obs):obsData(obs){
+
+
+/*
+ROI::ROI(Size s, ObsData obs){
 	expansion = 20;
 }
-
+*/
 vector<Rect> ROI::getROI(){
 	return obsData.getPast();
 }
 
 int ROI::setROI(vector<Rect>objects, double time, Size s){
 	frameSize = s;
+	cout << "time to process: " << time << endl;
 	dynamicRecenterROI(objects, time, frameSize);
 	return 1;
 }

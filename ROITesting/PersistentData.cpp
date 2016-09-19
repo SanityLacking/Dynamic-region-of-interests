@@ -67,9 +67,11 @@ string persistentData::outputResults(){
 			}
 			output += loc;
 		}
+		else{
+			output += ",";
+		}
 		output += "," + to_string(processTime[i]);
 		output += "\n";
-		cout << output << endl;
 	}
 	return output;
 

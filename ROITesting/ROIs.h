@@ -20,7 +20,7 @@ public:
 
 	//constructor
 	ROI(Size s);
-	ROI(Size s, ObsData& obsData);
+	ROI(Size s, ObsData& obs);
 
 	
 	
@@ -31,8 +31,8 @@ public:
 	void dyamicROI(vector<Rect>objects, Size s);
 
 private:
-	ObsData obsData;
-
+	ObsData& obsData;
+	ObsData DefaultObsData; //if no reference to an Obs Data, the class will use this one.
 	void dynamicRecenterROI(vector<Rect>& objects, double time, Size& s);
 	void staticROI(vector<Rect>& objects, Size& s);
 };

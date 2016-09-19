@@ -1,4 +1,7 @@
+
 #include "measurementSuite.h"
+
+
 #include <time.h> // to calculate time needed
 #include <limits.h> // to get INT_MAX, to protect against overflow
 
@@ -7,28 +10,22 @@
 using std::string;
 
 
+MeasureTool::MeasureTool(){
+	//QueryPerformanceFrequency(&timeFrequency);
+}
 void MeasureTool::start(){
-	if (counter == 0){
-		time(&tstart);
-	}
-
+	//QueryPerformanceCounter(&timeStart);
 }
 
-
 double MeasureTool::end(){
-	time(&tend);
-
+	//QueryPerformanceCounter(&timeEnd);
 	counter++;
-	sec = difftime(tend, tstart);
-	fps = round(counter / sec);
+	//LARGE_INTEGER second = { 1 };
+	//sec = (timeEnd.QuadPart - timeStart.QuadPart);
+	//fps = (timeEnd.QuadPart - timeStart.QuadPart) / (double)timeFrequency.QuadPart;
 	//double scale = 0.01;  // i.e. round to nearest one-hundreth
 	//fps = floor(fps / scale + 0.5) * scale;
-	//cout << (int)fps << endl;
-	//cout << tstart << " " << tend << endl;
-	// overflow protection
-	if (counter == (INT_MAX - 1000))
-		counter = 0;
-
+	
 	return sec;
 }
 double MeasureTool::getFPS(){
@@ -36,36 +33,3 @@ double MeasureTool::getFPS(){
 }
 
 //private function that updates the stats that the measure tool class stores.
-
-void MeasureTool::updateStats(vector<Rect> pastRoi){
-	frameCounter++;
-	frameProcessTime.push_back(sec);
-	ROIsFound.push_back(pastRoi.size());
-	PastROIs.push_back(pastRoi);
-
-}
-
-string MeasureTool::outputResults(){
-	string output = "";
-	for (int i = 0; i < ROIsFound.size(); i++){
-		output += "" + to_string(i) + "," + to_string(ROIsFound[i]) + ",";
-		if (PastROIs[i].size() > 0){
-			string loc; 
-			//when decoding this part, delimit by a space " ", then split each one by "_". 
-			//this will give you the (x,y) and (width,height) for each of the ROI found in that frame.
-			for (int j = 0; j < PastROIs[i].size(); j++){
-				loc += to_string(PastROIs[i][j].x) + "_" + to_string(PastROIs[i][j].y)+" ";
-			}
-			loc += ",";
-			for (int j = 0; j < PastROIs[i].size(); j++){
-				loc += to_string(PastROIs[i][j].width) + "_" + to_string(PastROIs[i][j].height)+" ";
-			}
-			output += loc;
-		}
-		output += "," + to_string(frameProcessTime[i]);
-		output += "\n";
-	}
-	return output;
-
-}
-
