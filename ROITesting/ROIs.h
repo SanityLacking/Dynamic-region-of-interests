@@ -7,34 +7,41 @@
 #include "opencv2/imgproc/imgproc.hpp"
 using namespace cv;
 using namespace std;
-
+//base class
 class ROI{
 public:
 	//vars
 	Size frameSize;
 	int expansion = 10;
-	string ROIType = "static";
 	vector<Rect> currentROI;
 	vector<Rect> pastROI;
-	const string typesArray[3];
-
+	ObsData& obsData;
+	ObsData DefaultObsData; //if no reference to an Obs Data, the class will use this one.
+	vector<Rect> outputROI;
 	//constructor
 	ROI(Size s);
 	ROI(Size s, ObsData& obs);
-
-	
-	
 	//functions
 	vector<Rect> getROI();
-	int setROI(vector<Rect>objects, double time, Size s);
-	//void staticROI(vector<Rect>objects, Size s);
-	void dyamicROI(vector<Rect>objects, Size s);
-
+	
+	virtual int setROI(vector<Rect>objects, double time, Size s) = 0;
+	
 private:
-	ObsData& obsData;
-	ObsData DefaultObsData; //if no reference to an Obs Data, the class will use this one.
-	void dynamicRecenterROI(vector<Rect>& objects, double time, Size& s);
-	void staticROI(vector<Rect>& objects, Size& s);
+};
+
+// the derived classes of all the possible types of ROI.
+class DynamicRentering : public ROI{
+public:
+	DynamicRentering(Size s, ObsData& obs) :ROI(s, obs){};
+	DynamicRentering(Size s) :ROI(s){};
+	int setROI(vector<Rect>objects, double time, Size s);
+};
+
+class StaticRentering : public ROI{
+public:
+	StaticRentering(Size s, ObsData& obs) :ROI(s, obs){};
+	StaticRentering(Size s) :ROI(s){};
+	int setROI(vector<Rect>objects, double time, Size s);
 };
 
 

@@ -11,7 +11,7 @@
 using namespace std;
 
 persistentData::persistentData(){
-	outputHeader = "frame, ROI found, ROI location, ROI size, frame process time \n";
+	outputHeader = "frame, ROI found, ROI location, ROI size, process time (Miliseconds) \n";
 }
 // add vector of rects to be stored to the local memory. until storetofile is called they will not be saved to a file.
 void persistentData::store(vector<Rect>objects, double time){

@@ -70,7 +70,7 @@ int displayCamera(VideoCapture& camera){
 	persistentData persistData;
 	ObsData obsData(persistData);
 	cout << "frame size start: "<< frame.size << endl;
-	ROI roi(frame.size(),obsData);
+	DynamicRentering roi(frame.size(),obsData);
 	FaceDetect faceDetect;
 	QueryPerformanceFrequency(&timeFrequency);
 

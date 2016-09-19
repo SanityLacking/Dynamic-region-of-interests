@@ -15,31 +15,32 @@ ROI::ROI(Size s): obsData(DefaultObsData){
 	//frameSize = s;
 	expansion = 20;
 }
-
-
-
-/*
-ROI::ROI(Size s, ObsData obs){
-	expansion = 20;
-}
-*/
 vector<Rect> ROI::getROI(){
 	return obsData.getPast();
 }
 
-int ROI::setROI(vector<Rect>objects, double time, Size s){
-	frameSize = s;
-	cout << "time to process: " << time << endl;
-	dynamicRecenterROI(objects, time, frameSize);
+/* Dynamic Recenter ROI: each time an object is detected the ROI draws itself around the object. 
+*/
+int DynamicRentering::setROI(vector<Rect>objects, double time, Size s){
+	outputROI.clear();
+	for (int i = 0; i < objects.size(); i++){
+		Rect r = Rect(
+			objects[i].x - expansion,
+			objects[i].y - expansion,
+			min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x)),
+			min(objects[i].height + expansion * 2, abs(frameSize.height - objects[i].y))
+			);
+		outputROI.push_back(r);
+	}
+	obsData.set(outputROI, time);
 	return 1;
 }
 
 /*Static ROI, does not recenter the ROI over the object if it has moved slightly but is still detected. Most basic implementation.
-	do not clear the past roi until we check to see if a current face was detected within it.
+do not clear the past roi until we check to see if a current face was detected within it.
 */
-void ROI::staticROI(vector<Rect>& objects, Size& s){
-	vector<Rect> newROI;
-
+int StaticRentering::setROI(vector<Rect>objects, double time, Size s){
+	outputROI.clear();
 	//loop through all past ROI and try to fit an object to it. if you can, keep the pastROI.
 	for (int i = 0; i < pastROI.size(); i++){
 		bool keepROI = false;
@@ -49,10 +50,9 @@ void ROI::staticROI(vector<Rect>& objects, Size& s){
 			break;
 		}
 		if (keepROI != true){
-			newROI.push_back(pastROI[i]);
+			outputROI.push_back(pastROI[i]);
 		}
 	}
-	
 	//loop through all objects and see if the object is within an ROI. if not add a new ROI for it.
 	for (int j = 0; j < objects.size(); j++){
 		bool newObj = true;
@@ -67,27 +67,11 @@ void ROI::staticROI(vector<Rect>& objects, Size& s){
 				min(objects[j].width + expansion * 2, abs(frameSize.width - objects[j].x)),
 				min(objects[j].height + expansion * 2, abs(frameSize.height - objects[j].y))
 				);
-			newROI.push_back(r);
+			outputROI.push_back(r);
 		}
 	}
 
 	for (int i = 0; i < objects.size(); i++){
-	Rect r = Rect(
-			objects[i].x - expansion,
-			objects[i].y - expansion,
-			min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x)),
-			min(objects[i].height + expansion * 2, abs(frameSize.height - objects[i].y))
-			);
-		pastROI.push_back(r);
-	}
-}
-
-void ROI::dyamicROI(vector<Rect>objects, Size s){
-	frameSize = s;
-	pastROI.clear();
-	for (int i = 0; i < objects.size(); i++){
-		cout << "X: " << max(objects[i].x - expansion, 0) << " Y: " << max(objects[i].y - expansion, 0) << endl;
-		cout << "width: " << min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x)) << " Height: " << min(objects[i].height + expansion * 2, abs(frameSize.height - objects[i].y)) << endl;
 		Rect r = Rect(
 			objects[i].x - expansion,
 			objects[i].y - expansion,
@@ -96,21 +80,5 @@ void ROI::dyamicROI(vector<Rect>objects, Size s){
 			);
 		pastROI.push_back(r);
 	}
-}
-
-/* Dynamic Recenter ROI: each time an object is detected the ROI draws itself around the object. 
-
-*/
-void ROI::dynamicRecenterROI(vector<Rect>& objects, double time, Size& s){
-	vector<Rect> outputROI;
-	for (int i = 0; i < objects.size(); i++){
-		Rect r = Rect(
-			objects[i].x - expansion,
-			objects[i].y - expansion,
-			min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x)),
-			min(objects[i].height + expansion * 2, abs(frameSize.height - objects[i].y))
-			);
-		outputROI.push_back(r);
-	}
-	obsData.set(outputROI, time);
+	return 1;
 }
