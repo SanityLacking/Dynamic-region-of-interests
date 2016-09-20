@@ -31,7 +31,7 @@ vector<Rect> ObsData::getPast(){
 }
 
 void ObsData::store(){
-	cout << "ObsData: " << persistData.currentData.size() << endl;
+	//cout << "ObsData: " << persistData.currentData.size() << endl;
 	persistData.store(pastROI,pastTime);
 }
 

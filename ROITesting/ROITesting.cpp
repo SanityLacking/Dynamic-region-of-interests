@@ -33,7 +33,7 @@ double elapsedSeconds;
 
 bool displayBool =  true;
 bool storeBool = true;
-bool fileFinished = false;
+bool fileFinished = true;
 string detectMethod = "face";
 string roiMethod = "dynamicRecenter";
 //depending on which method is run, the output string here is changed.
@@ -69,7 +69,7 @@ int displayCamera(VideoCapture& camera){
 	vector<Rect> rec;
 	persistentData persistData;
 	ObsData obsData(persistData);
-	cout << "frame size start: "<< frame.size << endl;
+	cout << "Frame Processing Start" << endl;
 	DynamicRentering roi(frame.size(),obsData);
 	FaceDetect faceDetect;
 	QueryPerformanceFrequency(&timeFrequency);
@@ -77,16 +77,20 @@ int displayCamera(VideoCapture& camera){
 	for (;;){
 		frame.release();
 		camera >> frame;
-		if (frame.empty())break; //the file has finished or the web camera has stopped sending frames.
+		if (frame.empty()){//the file has finished or the web camera has stopped sending frames.
+			fileFinished = false;
+			break;
+		}
 		processImage(frame, roi, faceDetect);
 		if (displayBool){
 			imshow("output", frame);
 			if (waitKey(1) == 27) {
+				fileFinished = false;
 				break;
 			}
 		}
 	}
-	persistData.storeToFile(outputString);
+	persistData.storeToFile(outputString,fileFinished);
 	return 0;
 }
 
@@ -97,10 +101,11 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 
 	vector<Rect> objects;
 	//preprocess Blur, color correct, etc	
+	
 	//mTool.start();//fps counter start
 	QueryPerformanceCounter(&timeStart);
 	
-	objects = faceDetect.detectFaces(processImg, roi.getROI());
+	objects = faceDetect.detectFaces(processImg, roi);
 	
 	QueryPerformanceCounter(&timeEnd);
 	LARGE_INTEGER second = { 1 };
@@ -108,10 +113,7 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 	elapsedSeconds = (timeEnd.QuadPart - timeStart.QuadPart) / (double)timeFrequency.QuadPart;
 	double fps = floor((1 / elapsedSeconds)/0.01 +0.5)*0.01;
 	
-
 	roi.setROI(objects, sec , frame.size());
-
-
 	//mTool.end();
 	/*
 	else if (detectMethod == "eyes"){

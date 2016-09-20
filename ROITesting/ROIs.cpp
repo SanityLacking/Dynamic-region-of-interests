@@ -10,7 +10,6 @@ Types of Regions of Interests are defined here and can be called from outside th
 ROI::ROI(Size s, ObsData& obs): obsData(obs) {
 	expansion = 20;
 }
-
 ROI::ROI(Size s): obsData(DefaultObsData){
 	//frameSize = s;
 	expansion = 20;
@@ -18,6 +17,16 @@ ROI::ROI(Size s): obsData(DefaultObsData){
 vector<Rect> ROI::getROI(){
 	return obsData.getPast();
 }
+// expand rectangle r by amount s. s is applied to each side. so if 10 is given for s, the rectangle will grow by 20.
+void ROI::expandRect(Rect& r, int s, Size frameSize){
+	r = Rect(
+		r.x - s,
+		r.y - s,
+		min(r.width + s * 2, abs(frameSize.width - r.x)),
+		min(r.height + s * 2, abs(frameSize.height - r.y))
+		);
+}
+
 
 /* Dynamic Recenter ROI: each time an object is detected the ROI draws itself around the object. 
 */
@@ -33,6 +42,12 @@ int DynamicRentering::setROI(vector<Rect>objects, double time, Size s){
 		outputROI.push_back(r);
 	}
 	obsData.set(outputROI, time);
+	return 1;
+}
+/* Rescan the entire image
+*/
+int DynamicRentering::fallback(vector<Rect>&objects, Size s){
+	objects.clear();
 	return 1;
 }
 
@@ -82,3 +97,68 @@ int StaticRentering::setROI(vector<Rect>objects, double time, Size s){
 	}
 	return 1;
 }
+/* Fallsback to Rescan the entire image
+*/
+int StaticRentering::fallback(vector<Rect>&objects, Size s){ 
+	objects.clear(); 
+	return 1;
+}
+
+/*Expanding Box resizes the box if an object was not able to be found within the ROI the first time.
+*/
+int ExpandingBox::setROI(vector<Rect>objects, double time, Size s){
+	
+
+	return 1;
+}
+/* Expands the box again.
+*/
+int ExpandingBox::fallback(vector<Rect>&objects, Size s){
+	for (int i = 0; i < objects.size(); i++){
+		expandRect(objects[i], 50, s);
+	}
+	return 1;
+}
+
+/*BlockMatching 
+*/
+int BlockMatching::setROI(vector<Rect>objects, double time, Size s){
+	
+	return 1;
+}
+/* Rescans the image?
+*/
+int BlockMatching::fallback(vector<Rect>&objects, Size s){ 
+	objects.clear();
+	return 1; 
+}
+
+/*Kalman Predictive expands on the recentering method by using Kalman filtering to predict the movement of the object and moving the center of the ROI 
+respectively. if the prediction was incorrect, the entire image needs to be searched again.
+*/
+int KalmanPredictive::setROI(vector<Rect>objects, double time, Size s){
+	
+	return 1;
+}
+/* Rescan the image?
+*/
+int KalmanPredictive::fallback(vector<Rect>&objects, Size s){
+	objects.clear();
+	return 1;
+}
+/*Monte Carlo Predictive expands on the recentering method by using Monte Carlo Filtering to predict the movement of the object and moving the center of the ROI
+respectively. if the prediction was incorrect, the entire image needs to be searched again.
+*/
+int MonteCarloPredictive::setROI(vector<Rect>objects, double time, Size s){
+	
+	return 1;
+}
+/* Rescan the image?
+*/
+int MonteCarloPredictive::fallback(vector<Rect>&objects, Size s){
+	objects.clear();
+	return 1;
+}
+
+
+

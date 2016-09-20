@@ -15,7 +15,7 @@ persistentData::persistentData(){
 }
 // add vector of rects to be stored to the local memory. until storetofile is called they will not be saved to a file.
 void persistentData::store(vector<Rect>objects, double time){
-	cout << "store: "<<objects.size() << "saved so far: "<< currentData.size()<< endl;
+	//cout << "store: "<<objects.size() << "saved so far: "<< currentData.size()<< endl;
 
 	currentData.push_back(objects);
 	processTime.push_back(time);

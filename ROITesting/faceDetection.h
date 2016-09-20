@@ -6,6 +6,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "Eyes.h"
+#include "ROIs.h"
 
 using namespace cv;
 using namespace std;
@@ -24,14 +25,14 @@ public:
 	double PointDist(Point a, Point b);
 	//vector<Eyes> partnerEyes(vector<Rect>eyes);
 	string fallbackMethod = "fullImg";
-	vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef);
+	vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& roiRef, bool fallback);
+	vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi);
 	vector<Rect> FaceDetect::detectFaces(Mat& frame);
 	vector<Rect> detectEyes(Mat& frame);
 	vector<Rect> detectEyes(Mat& frame, vector<Rect>& Roi);
 	void trackEyes(vector<Eyes> currentEyes, vector<Eyes>& pastEyes);
 	Rect frameRoi(Rect obj, Point roiPoint);
 private:
-	void expandRect(Rect& r, int s, Size frameSize);
 };
 
 #endif

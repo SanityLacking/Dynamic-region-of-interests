@@ -1,16 +1,40 @@
 
 #include "faceDetection.h"
+#include "ROIs.h"
 #include "Eyes.h"
 #include <iostream>
 
 using namespace std;
+
 
 FaceDetect::FaceDetect(){
 	if (!face_cascade.load(face_cascade_name)){ printf("--(!)Error loading face\n"); };
 	if (!eyes_cascade.load(eyes_cascade_name)){ printf("--(!)Error loading eyes\n"); };
 }
 
-vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef){
+//do the same thing as the other detectfaces, but have no fallback method.
+vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef, bool fallback = true){
+	vector<Rect> faces;
+	if (RoiRef.size() > 0){	//if Roi is present use Roi.
+		for (int i = 0; i < RoiRef.size(); i++){
+			Mat RoiFrame = frame(RoiRef[i]);
+			Mat& RoiFrameRef = RoiFrame;
+			vector<Rect> faces2 = detectFaces(RoiFrameRef);
+			for (int j = 0; j < faces2.size(); j++){
+				faces.push_back(frameRoi(faces2[j], Point(RoiRef[i].x, RoiRef[i].y)));
+			}
+		}
+		cout << "FALLBACK: ROI FACES: " << faces.size() << endl;
+	}else if (fallback == true){	// if no Roi is present, no objects were detected in the last frame scan whole image.                                                                             
+		
+		cout << "FALLBACK: no ROI Present" << endl;
+		faces = detectFaces(frame);
+	}
+	return faces;
+}
+
+vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi){
+	vector<Rect> RoiRef = roi.getROI();
 	vector<Rect> faces;
 	bool noRoi = true;
 	if (RoiRef.size() > 0){	//if Roi is present use Roi.
@@ -27,22 +51,24 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef){
 		cout << "ROI FACES: " << faces.size() << endl;
 	}
 	else{	// if no Roi is present, no objects were detected in the last frame scan whole image.                                                                             
-		cout << "no ROI Present" << endl;
+		cout << "No ROI Present" << endl;
 		faces = detectFaces(frame);
 	}
 
 	if (faces.size() == 0 && noRoi == false){	// if an Roi was present but no results were found, scan whole image.
-		cout << "no faces within ROI" << endl;
-		faces = detectFaces(frame);
-		/*else if (fallbackMethod == "expandBox"){
-			for (int i = 0; i < RoiRef.size(); i++){
-				expandRect(RoiRef[i], 50, frame.size());
-			}
-
-		}*/
-		//either the program expands the boxes or scans the whole img. to know this, I need to know what to do from the ROI.
+		cout << "No faces within ROI" << endl;
+		
+		roi.fallback(RoiRef,frame.size());
+		if (RoiRef.size() <= 0){ //rescan whole image.
+			cout << "Fallback: Rescan" << endl;
+			faces = detectFaces(frame);
+		}else { //use new ROI, but don't create an infinite loop.
+			cout << "Fallback: ROI Method" << endl;
+			faces = detectFaces(frame, RoiRef, false);
+		}
 	}
-	cout << "number of faces detected " << faces.size() << endl;
+
+	cout << "Number of faces detected " << faces.size() << endl;
 
 	for (int i = 0; i < faces.size(); i++){
 		for (int j = 0; j < faces.size(); j++){
@@ -60,18 +86,6 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef){
 vector<Rect> FaceDetect::detectFaces(Mat& frame){
 	vector<Rect> faces;
 	face_cascade.detectMultiScale(frame, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(40, 40), Size(340, 340));
-	/*
-	for (int i = 0; i < faces.size(); i++){
-		for (int j = 0; j < faces.size(); j++){
-			if ((faces[j].x > faces[i].x && faces[j].x < faces[i].x + faces[i].width) && (faces[j].y > faces[i].y && faces[j].y < faces[i].y + faces[i].height)){ // if j is within i 
-				if (faces[j].width + faces[j].height < faces[i].width + faces[i].height){// if J is smaller then I
-					//cout << "overlapping faces detected" << endl;
-					faces.erase(faces.begin() + j);
-				}
-			}
-		}
-	}
-	*/
 	return faces;
 }
 
@@ -95,12 +109,12 @@ vector<Rect> FaceDetect::detectEyes(Mat& frame, vector<Rect>& RoiRef){
 		}
 	}
 	else{	// if no Roi is present, scan whole image.
-		cout << "no ROI Present" << endl;
+		cout << "No ROI Present" << endl;
 		eyes = detectEyes(frame);
 	}
 
 	if (eyes.size() == 0 && noRoi == false){	// if an Roi was used but no results were found, scan whole image.
-		cout << "no Eyes within ROI" << endl;
+		cout << "No Eyes within ROI" << endl;
 		eyes = detectEyes(frame);
 	}
 	cout << "number of eyes detected " << eyes.size() << endl;
@@ -149,14 +163,4 @@ vector<Rect> FaceDetect::detectEyes(Mat& frame){
 Rect FaceDetect::frameRoi(Rect obj, Point roiPoint){
 	return Rect(obj.x + roiPoint.x, obj.y + roiPoint.y, obj.width, obj.height);
 
-}
-
-// expand rectangle r by amount s. s is applied to each side. so if 10 is given for s, the rectangle will grow by 20.
-void expandRect(Rect& r, int s, Size frameSize){
-	r = Rect(
-		r.x - s,
-		r.y - s,
-		min(r.width + s * 2, abs(frameSize.width - r.x)),
-		min(r.height + s * 2, abs(frameSize.height - r.y))
-		);
 }
