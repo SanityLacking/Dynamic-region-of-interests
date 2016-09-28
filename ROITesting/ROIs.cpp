@@ -14,9 +14,14 @@ ROI::ROI(Size s): obsData(DefaultObsData){
 	//frameSize = s;
 	expansion = 20;
 }
+
+
+
 vector<Rect> ROI::getROI(){
 	return obsData.getPast();
 }
+
+
 // expand rectangle r by amount s. s is applied to each side. so if 10 is given for s, the rectangle will grow by 20.
 void ROI::expandRect(Rect& r, int s, Size frameSize){
 	r = Rect(
@@ -105,13 +110,14 @@ int StaticRentering::fallback(vector<Rect>&objects, Size s){
 }
 
 /*Expanding Box resizes the box if an object was not able to be found within the ROI the first time.
+Nothing is done in the first step, the boxes are only expanded if the objects were not detected in the first attempt.
 */
 int ExpandingBox::setROI(vector<Rect>objects, double time, Size s){
 	
 
 	return 1;
 }
-/* Expands the box again.
+/* Expands the box to try and find the object's new location.
 */
 int ExpandingBox::fallback(vector<Rect>&objects, Size s){
 	for (int i = 0; i < objects.size(); i++){
@@ -137,7 +143,43 @@ int BlockMatching::fallback(vector<Rect>&objects, Size s){
 respectively. if the prediction was incorrect, the entire image needs to be searched again.
 */
 int KalmanPredictive::setROI(vector<Rect>objects, double time, Size s){
-	
+	// check that there is a prior state to call upon. if none exists, initalize for next iteration.
+	for (int i = 0; i < objects.size(); i++){// deal with how I handle tracking multiple objects somehow.
+		Point prevEst;
+		Point center;
+		int zX, y, Px, Py;
+
+		double xVel, xAcel, yVel, yAcel;
+		double processNoise;
+		double qEst;
+
+		// time update
+		int prevX = previousPrediction.x + errMeasurement;
+		double prevP = pastP + Q;
+
+		//measurement Update
+		kalmanGain = pastP / (pastP + R);
+		Px = prevX + kalmanGain * (zX - prevX);
+		double P = (1 - kalmanGain) * pastP;
+
+		//store updates
+		pastP = P;
+		previousPrediction.x = Px;
+	}
+
+
+	/*2d movement.  movement in the x 
+		2 equations,
+		state update = prior state + input +error
+		measurement update = state update + measurement error
+	*/
+
+
+
+
+
+
+
 	return 1;
 }
 /* Rescan the image?
@@ -159,6 +201,5 @@ int MonteCarloPredictive::fallback(vector<Rect>&objects, Size s){
 	objects.clear();
 	return 1;
 }
-
 
 

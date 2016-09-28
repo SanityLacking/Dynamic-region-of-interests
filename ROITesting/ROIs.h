@@ -69,6 +69,12 @@ public:
 	KalmanPredictive(Size s) :ROI(s){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	//variables:
+	Point previousPrediction;
+	double pastP;
+	double kalmanGain = 0.5;
+	double errMeasurement = 0.5;
+	double Q, R = 0; //constants
 };
 
 class MonteCarloPredictive : public ROI{
@@ -78,6 +84,5 @@ public:
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
 };
-
 
 #endif

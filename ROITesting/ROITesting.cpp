@@ -9,6 +9,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include "ROIs.h"
+#include "ROIFactory.h"
 #include "measurementSuite.h"
 #include "faceDetection.h"
 #include "PersistentData.h"
@@ -70,7 +71,9 @@ int displayCamera(VideoCapture& camera){
 	persistentData persistData;
 	ObsData obsData(persistData);
 	cout << "Frame Processing Start" << endl;
-	DynamicRentering roi(frame.size(),obsData);
+	ROIFactory->
+	ROI *roi = ROIFactory.createROI(frame.size(), obsData);
+	//DynamicRentering roi(frame.size(),obsData);
 	FaceDetect faceDetect;
 	QueryPerformanceFrequency(&timeFrequency);
 
@@ -113,7 +116,7 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 	elapsedSeconds = (timeEnd.QuadPart - timeStart.QuadPart) / (double)timeFrequency.QuadPart;
 	double fps = floor((1 / elapsedSeconds)/0.01 +0.5)*0.01;
 	
-	roi.setROI(objects, sec , frame.size());
+	roi.setROI(objects, sec, frame.size());
 	//mTool.end();
 	/*
 	else if (detectMethod == "eyes"){
@@ -141,6 +144,7 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 	
 	//store results if need be.	
 }
+
 
 /*
 	detection comparasion
