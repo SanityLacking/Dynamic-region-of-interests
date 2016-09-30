@@ -147,8 +147,8 @@ int KalmanPredictive::setROI(vector<Rect>objects, double time, Size s){
 	for (int i = 0; i < objects.size(); i++){// deal with how I handle tracking multiple objects somehow.
 		Point prevEst;
 		Point center;
-		int zX, y, Px, Py;
-
+		int  y, Px, Py;
+		int zX = previousPrediction.x;
 		double xVel, xAcel, yVel, yAcel;
 		double processNoise;
 		double qEst;

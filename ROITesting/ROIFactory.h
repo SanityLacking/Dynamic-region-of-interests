@@ -7,5 +7,5 @@ class ROIFactory
 {
 public:
 	// Factory Method
-	ROI *createROI(String input, Size s, ObsData obs);
+	static ROI *createROI(String input, Size s, ObsData obs);
 };

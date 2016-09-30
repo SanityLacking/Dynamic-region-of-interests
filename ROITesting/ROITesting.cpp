@@ -39,7 +39,6 @@ string detectMethod = "face";
 string roiMethod = "dynamicRecenter";
 //depending on which method is run, the output string here is changed.
 //eg: dynamic_recentering, static_control, dynamic_kalman.
-string outputString = "dynamic_recentering";
 
 string outputHeader = "frame, ROI found, ROI location, ROI size, frame process time \n";
 int displayCamera(VideoCapture& camera);
@@ -70,9 +69,10 @@ int displayCamera(VideoCapture& camera){
 	vector<Rect> rec;
 	persistentData persistData;
 	ObsData obsData(persistData);
-	cout << "Frame Processing Start" << endl;
-	ROIFactory->
-	ROI *roi = ROIFactory.createROI(frame.size(), obsData);
+	cout << "Frame Processing Start: ROI Method "<< roiMethod << endl;
+	//ROIFactory->
+	
+	ROI *roi = ROIFactory::createROI(roiMethod, frame.size(), obsData);
 	//DynamicRentering roi(frame.size(),obsData);
 	FaceDetect faceDetect;
 	QueryPerformanceFrequency(&timeFrequency);
@@ -84,7 +84,7 @@ int displayCamera(VideoCapture& camera){
 			fileFinished = false;
 			break;
 		}
-		processImage(frame, roi, faceDetect);
+		processImage(frame, *roi, faceDetect);
 		if (displayBool){
 			imshow("output", frame);
 			if (waitKey(1) == 27) {
@@ -93,7 +93,7 @@ int displayCamera(VideoCapture& camera){
 			}
 		}
 	}
-	persistData.storeToFile(outputString,fileFinished);
+	persistData.storeToFile(roiMethod,fileFinished);
 	return 0;
 }
 
