@@ -36,7 +36,7 @@ bool displayBool =  true;
 bool storeBool = true;
 bool fileFinished = true;
 string detectMethod = "face";
-string roiMethod = "dynamicRecenter";
+string roiMethod = "dynamicRecentering";
 //depending on which method is run, the output string here is changed.
 //eg: dynamic_recentering, static_control, dynamic_kalman.
 
@@ -55,6 +55,15 @@ MeasureTool mTool;
 
 */
 int _tmain(int argc, _TCHAR* argv[]){
+	cout << argc << endl;
+	cout << "args: "<<argv[1] << endl;
+	if (argc > 1){
+		for (int i = 0; i < argc; i++){
+			cout << argv[i] << endl; 
+		}
+		roiMethod = argv[1];
+	}
+	
 	VideoCapture camera;
 	if (!camera.open("Video_1.mp4")){
 		cout << "Camera Is not able to be Opened, is it connected?" << endl; 
@@ -70,7 +79,6 @@ int displayCamera(VideoCapture& camera){
 	persistentData persistData;
 	ObsData obsData(persistData);
 	cout << "Frame Processing Start: ROI Method "<< roiMethod << endl;
-	//ROIFactory->
 	
 	ROI *roi = ROIFactory::createROI(roiMethod, frame.size(), obsData);
 	//DynamicRentering roi(frame.size(),obsData);
