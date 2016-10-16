@@ -27,7 +27,9 @@ vector<Rect>  obsData::getCurrent(){
 }
 */
 vector<Rect> ObsData::getPast(){
-	return pastROI;
+	vector<Rect> pRoi =pastROI;
+	pastROI.clear();
+	return pRoi;
 }
 
 void ObsData::store(){

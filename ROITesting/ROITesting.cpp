@@ -36,7 +36,8 @@ bool displayBool =  true;
 bool storeBool = true;
 bool fileFinished = true;
 string detectMethod = "face";
-string roiMethod = "dynamicRecentering";
+string roiMethod = "control";
+vector<string> methodTypes = { "dynamicRecentering", "staticRecentering" };
 //depending on which method is run, the output string here is changed.
 //eg: dynamic_recentering, static_control, dynamic_kalman.
 
@@ -55,15 +56,15 @@ MeasureTool mTool;
 
 */
 int _tmain(int argc, _TCHAR* argv[]){
+#ifdef NDEBUG
 	cout << argc << endl;
-	cout << "args: "<<argv[1] << endl;
 	if (argc > 1){
 		for (int i = 0; i < argc; i++){
 			cout << argv[i] << endl; 
 		}
 		roiMethod = argv[1];
 	}
-	
+#endif
 	VideoCapture camera;
 	if (!camera.open("Video_1.mp4")){
 		cout << "Camera Is not able to be Opened, is it connected?" << endl; 
@@ -89,12 +90,14 @@ int displayCamera(VideoCapture& camera){
 		frame.release();
 		camera >> frame;
 		if (frame.empty()){//the file has finished or the web camera has stopped sending frames.
-			fileFinished = false;
+			fileFinished = true;
 			break;
 		}
 		processImage(frame, *roi, faceDetect);
 		if (displayBool){
-			imshow("output", frame);
+			#ifdef _DEBUG
+				imshow("output", frame);
+			#endif
 			if (waitKey(1) == 27) {
 				fileFinished = false;
 				break;
@@ -138,16 +141,16 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 	}
 	// Draw Detections
 	*/
-	for (int i = 0; i < objects.size(); ++i){
-		rectangle(frame, objects[i], Scalar(255, 255, 255));
-	}
-	for (int i = 0; i < roi.pastROI.size(); ++i){
-		rectangle(frame, roi.pastROI[i], Scalar(0, 155, 255),2);
-	}
+	#ifdef _DEBUG
+		for (int i = 0; i < objects.size(); ++i){
+			rectangle(frame, objects[i], Scalar(255, 255, 255));
+		}
+	
 
-	if (displayBool){
-		putText(frame, "fps: " + to_string(fps), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
-	}
+		if (displayBool){
+			putText(frame, "fps: " + to_string(fps), Point(5, 15), FONT_HERSHEY_PLAIN, 1.2, Scalar(0, 0, 255, 255), 2);
+		}
+	#endif
 	//Set new ROI
 	
 	//store results if need be.	

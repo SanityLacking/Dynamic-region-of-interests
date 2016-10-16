@@ -13,13 +13,14 @@ FaceDetect::FaceDetect(){
 }
 
 //do the same thing as the other detectfaces, but have no fallback method.
-vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef, bool fallback = true){
+/*vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef, bool fallback = true){
 	vector<Rect> faces;
+	vector<Rect> faces2;
 	if (RoiRef.size() > 0){	//if Roi is present use Roi.
 		for (int i = 0; i < RoiRef.size(); i++){
 			Mat RoiFrame = frame(RoiRef[i]);
 			Mat& RoiFrameRef = RoiFrame;
-			vector<Rect> faces2 = detectFaces(RoiFrameRef);
+			//vector<Rect> faces2 = detectFaces(RoiFrameRef);
 			for (int j = 0; j < faces2.size(); j++){
 				faces.push_back(frameRoi(faces2[j], Point(RoiRef[i].x, RoiRef[i].y)));
 			}
@@ -32,6 +33,8 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef, bool fall
 	}
 	return faces;
 }
+*/
+
 
 vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi){
 	vector<Rect> RoiRef = roi.getROI();
@@ -40,12 +43,18 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi){
 	if (RoiRef.size() > 0){	//if Roi is present use Roi.
 		cout << "ROI Present " << RoiRef.size() << endl;
 		noRoi = false;
+		vector<Rect> faces2;
 		for (int i = 0; i < RoiRef.size(); i++){
 			Mat RoiFrame = frame(RoiRef[i]);
-			Mat& RoiFrameRef = RoiFrame;
-			vector<Rect> faces2 = detectFaces(RoiFrameRef);
+			#ifdef _DEBUG	
+				imshow("roi", RoiFrame);
+			#endif
+				faces2 = detectFaces(RoiFrame);
+
 			for (int j = 0; j < faces2.size(); j++){
-				faces.push_back(frameRoi(faces2[j], Point(RoiRef[i].x, RoiRef[i].y)));
+				Rect r = frameRoi(faces2[j], Point(RoiRef[i].x, RoiRef[i].y));
+				cout << "facesPushBack: " << r.x << "," << r.y << "," << r.width << "," << r.height << endl;
+				faces.push_back(r);
 			}
 		}
 		cout << "ROI FACES: " << faces.size() << endl;
@@ -57,15 +66,17 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi){
 
 	if (faces.size() == 0 && noRoi == false){	// if an Roi was present but no results were found, scan whole image.
 		cout << "No faces within ROI" << endl;
-		
-		roi.fallback(RoiRef,frame.size());
+		faces = detectFaces(frame);
+
+/*		//roi.fallback(RoiRef,frame.size());
 		if (RoiRef.size() <= 0){ //rescan whole image.
 			cout << "Fallback: Rescan" << endl;
 			faces = detectFaces(frame);
 		}else { //use new ROI, but don't create an infinite loop.
 			cout << "Fallback: ROI Method" << endl;
-			faces = detectFaces(frame, RoiRef, false);
+			//faces = detectFaces(frame, RoiRef, false);
 		}
+*/
 	}
 
 	cout << "Number of faces detected " << faces.size() << endl;
@@ -88,7 +99,7 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame){
 	face_cascade.detectMultiScale(frame, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(40, 40), Size(340, 340));
 	return faces;
 }
-
+/*
 vector<Rect> FaceDetect::detectEyes(Mat& frame, vector<Rect>& RoiRef){
 	vector<Rect> eyes;
 	bool noRoi = true;
@@ -158,7 +169,7 @@ vector<Rect> FaceDetect::detectEyes(Mat& frame){
 	//cout << eyes.size()<< endl;
 	return eyes;
 }
-
+*/
 // convert Rect generated for Roi frame to the correct position for the original frame.
 Rect FaceDetect::frameRoi(Rect obj, Point roiPoint){
 	return Rect(obj.x + roiPoint.x, obj.y + roiPoint.y, obj.width, obj.height);

@@ -31,6 +31,14 @@ private:
 };
 
 // the derived classes of all the possible types of ROI.
+class Control : public ROI{
+public:
+	Control(Size s, ObsData& obs) :ROI(s, obs){};
+	int setROI(vector<Rect>objects, double time, Size s);
+	int fallback(vector<Rect>&objects, Size s);
+};
+
+
 class DynamicRentering : public ROI{
 public:
 	DynamicRentering(Size s, ObsData& obs) :ROI(s, obs){};

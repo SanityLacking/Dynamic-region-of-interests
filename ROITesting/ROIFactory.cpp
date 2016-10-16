@@ -3,6 +3,9 @@
 
 
 ROI *ROIFactory::createROI(String input, Size s, ObsData obs){
+	if (input == "control"){
+		return new Control(s, obs);
+	}
 	if (input == "dynamicRecentering"){
 		return new DynamicRentering(s, obs);
 	}

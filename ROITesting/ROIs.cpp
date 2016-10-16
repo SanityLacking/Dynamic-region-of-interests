@@ -18,32 +18,42 @@ ROI::ROI(Size s): obsData(DefaultObsData){
 
 
 vector<Rect> ROI::getROI(){
-	return obsData.getPast();
+	return outputROI;
+	//return obsData.getPast();
 }
 
 
 // expand rectangle r by amount s. s is applied to each side. so if 10 is given for s, the rectangle will grow by 20.
 void ROI::expandRect(Rect& r, int s, Size frameSize){
 	r = Rect(
-		r.x - s,
-		r.y - s,
+		max(r.x - s,0),
+		max(r.y - s,0),
 		min(r.width + s * 2, abs(frameSize.width - r.x)),
 		min(r.height + s * 2, abs(frameSize.height - r.y))
 		);
 }
 
-
+int Control::setROI(vector<Rect>objects, double time, Size s){
+	obsData.set(objects, time);
+	return 1;
+}
+int Control::fallback(vector<Rect>&objects, Size s){
+	return 1;
+}
 /* Dynamic Recenter ROI: each time an object is detected the ROI draws itself around the object. 
 */
 int DynamicRentering::setROI(vector<Rect>objects, double time, Size s){
 	outputROI.clear();
 	for (int i = 0; i < objects.size(); i++){
 		Rect r = Rect(
-			objects[i].x - expansion,
-			objects[i].y - expansion,
-			min(objects[i].width + expansion * 2, abs(frameSize.width - objects[i].x)),
-			min(objects[i].height + expansion * 2, abs(frameSize.height - objects[i].y))
+			max(objects[i].x - expansion,0),
+			max(objects[i].y - expansion,0),
+			min(objects[i].width + expansion * 2, abs(s.width - objects[i].x -1)),
+			min(objects[i].height + expansion * 2, abs(s.height - objects[i].y -1))
+//			objects[i].width + expansion * 2,
+//			objects[i].height + expansion * 2
 			);
+		cout << "SetROI: " << r.x << "," << r.y << "," << r.width << "," << r.height << endl;
 		outputROI.push_back(r);
 	}
 	obsData.set(outputROI, time);
@@ -100,6 +110,7 @@ int StaticRentering::setROI(vector<Rect>objects, double time, Size s){
 			);
 		pastROI.push_back(r);
 	}
+	obsData.set(outputROI, time);
 	return 1;
 }
 /* Fallsback to Rescan the entire image
