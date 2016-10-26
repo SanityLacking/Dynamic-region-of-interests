@@ -28,16 +28,20 @@ using namespace cv;
 using namespace std;
 
 LARGE_INTEGER timeFrequency;
-LARGE_INTEGER timeStart;
-LARGE_INTEGER timeEnd;
+//LARGE_INTEGER timeStart;
+//LARGE_INTEGER timeEnd;
+
+FILETIME timeStart;
+FILETIME timeEnd;
+
 double elapsedSeconds;
 
 bool displayBool =  true;
 bool storeBool = true;
 bool fileFinished = true;
 string detectMethod = "face";
-string roiMethod = "control";
-vector<string> methodTypes = { "dynamicRecentering", "staticRecentering" };
+string roiMethod = "static";
+//vector<string> methodTypes = { "dynamicRecentering", "staticRecentering" };
 //depending on which method is run, the output string here is changed.
 //eg: dynamic_recentering, static_control, dynamic_kalman.
 
@@ -82,6 +86,7 @@ int displayCamera(VideoCapture& camera){
 	cout << "Frame Processing Start: ROI Method "<< roiMethod << endl;
 	
 	ROI *roi = ROIFactory::createROI(roiMethod, frame.size(), obsData);
+	cout << roi->ROItype << endl;
 	//DynamicRentering roi(frame.size(),obsData);
 	FaceDetect faceDetect;
 	QueryPerformanceFrequency(&timeFrequency);
@@ -117,16 +122,45 @@ void processImage(Mat& frame, ROI& roi, FaceDetect& faceDetect){
 	//preprocess Blur, color correct, etc	
 	
 	//mTool.start();//fps counter start
-	QueryPerformanceCounter(&timeStart);
-	
+	//QueryPerformanceCounter(&timeStart);
+	GetSystemTimePreciseAsFileTime(&timeStart);
 	objects = faceDetect.detectFaces(processImg, roi);
+	GetSystemTimePreciseAsFileTime(&timeEnd);
+
+
+
+	//ULONGLONG tStart, tEnd;
+	double dStart, dEnd;
+
+	ULARGE_INTEGER tStart;
+	tStart.LowPart = timeStart.dwLowDateTime;
+	tStart.HighPart = timeStart.dwHighDateTime;
+	__int64 timeStart64Bit = tStart.QuadPart;
+
+	ULARGE_INTEGER tEnd;
+	tEnd.LowPart = timeEnd.dwLowDateTime;
+	tEnd.HighPart = timeEnd.dwHighDateTime;
+	__int64 timeEnd64Bit = tEnd.QuadPart;
 	
-	QueryPerformanceCounter(&timeEnd);
+	double sec = (double)(timeEnd64Bit - timeStart64Bit) / 10000000.0;
+	double fps = floor((1 / sec) / 0.01 + 0.5)*0.01;
+
+	/*
+	tStart = ((ULONGLONG)timeStart.dwHighDateTime << 32) | (ULONGLONG)timeStart.dwLowDateTime;
+	dStart =(double)tStart / 10000000.0;
+	
+	tEnd = ((ULONGLONG)timeEnd.dwHighDateTime << 32) | (ULONGLONG)timeEnd.dwLowDateTime;
+	dEnd = (double)tStart / 10000000.0;
+	
+	double sec = (double)(tEnd - tStart) / 10000000.0;
+	double fps = floor((1 / sec) / 0.01 + 0.5)*0.01;
+	
+	//QueryPerformanceCounter(&timeEnd);
 	LARGE_INTEGER second = { 1 };
 	double sec = (timeEnd.QuadPart - timeStart.QuadPart);
 	elapsedSeconds = (timeEnd.QuadPart - timeStart.QuadPart) / (double)timeFrequency.QuadPart;
 	double fps = floor((1 / elapsedSeconds)/0.01 +0.5)*0.01;
-	
+	*/
 	roi.setROI(objects, sec, frame.size());
 	//mTool.end();
 	/*

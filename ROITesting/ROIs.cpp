@@ -40,6 +40,7 @@ int Control::setROI(vector<Rect>objects, double time, Size s){
 int Control::fallback(vector<Rect>&objects, Size s){
 	return 1;
 }
+
 /* Dynamic Recenter ROI: each time an object is detected the ROI draws itself around the object. 
 */
 int DynamicRentering::setROI(vector<Rect>objects, double time, Size s){
@@ -50,8 +51,6 @@ int DynamicRentering::setROI(vector<Rect>objects, double time, Size s){
 			max(objects[i].y - expansion,0),
 			min(objects[i].width + expansion * 2, abs(s.width - objects[i].x -1)),
 			min(objects[i].height + expansion * 2, abs(s.height - objects[i].y -1))
-//			objects[i].width + expansion * 2,
-//			objects[i].height + expansion * 2
 			);
 		cout << "SetROI: " << r.x << "," << r.y << "," << r.width << "," << r.height << endl;
 		outputROI.push_back(r);
@@ -69,8 +68,39 @@ int DynamicRentering::fallback(vector<Rect>&objects, Size s){
 /*Static ROI, does not recenter the ROI over the object if it has moved slightly but is still detected. Most basic implementation.
 do not clear the past roi until we check to see if a current face was detected within it.
 */
+int Static::setROI(vector<Rect>objects, double time, Size s){
+	if (objects.size() > 0){
+		if (outputROI.size() <= 0)
+			for (size_t i = 0; i < objects.size(); i++)	{
+				Rect r = Rect(
+					max(objects[i].x - expansion, 0),
+					max(objects[i].y - expansion, 0),
+					min(objects[i].width + expansion * 2, abs(s.width - objects[i].x - 1)),
+					min(objects[i].height + expansion * 2, abs(s.height - objects[i].y - 1))
+					);
+				outputROI.push_back(r);
+			} //else do nothing
+	}else{ 
+		// no objects detected at all
+		outputROI.clear();
+	}
+	obsData.set(outputROI, time);
+	return 1;
+}
+
+int Static::fallback(vector<Rect>&objects, Size s){
+	objects.clear();
+	outputROI.clear();
+	return 1;
+}
+
+
+
 int StaticRentering::setROI(vector<Rect>objects, double time, Size s){
 	outputROI.clear();
+
+	//if object is detected, within the roi, 
+
 	//loop through all past ROI and try to fit an object to it. if you can, keep the pastROI.
 	for (int i = 0; i < pastROI.size(); i++){
 		bool keepROI = false;
@@ -117,6 +147,44 @@ int StaticRentering::setROI(vector<Rect>objects, double time, Size s){
 */
 int StaticRentering::fallback(vector<Rect>&objects, Size s){ 
 	objects.clear(); 
+	return 1;
+}
+
+int StaticExpanding::setROI(vector<Rect>objects, double time, Size s){
+	if (objects.size() > 0){
+		if (outputROI.size() <= 0)
+			for (size_t i = 0; i < objects.size(); i++)	{
+				Rect r = Rect(
+					max(objects[i].x - expansion, 0),
+					max(objects[i].y - expansion, 0),
+					min(objects[i].width + expansion * 2, abs(s.width - objects[i].x - 1)),
+					min(objects[i].height + expansion * 2, abs(s.height - objects[i].y - 1))
+					);
+				outputROI.push_back(r);
+			} //else do nothing
+	}
+	else{
+		// no objects detected at all
+		outputROI.clear();
+	}
+	return 1;
+}
+/* Fallsback to expand the ROI by expansionAmount
+*/
+int StaticExpanding::fallback(vector<Rect>&objects, Size s){
+	//objects.clear();
+	vector<Rect>output;
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		Rect r = Rect(
+			max(objects[i].x - expansionAmount, 0),
+			max(objects[i].y - expansionAmount, 0),
+			min(objects[i].width + expansionAmount * 2, abs(s.width - objects[i].x - 1)),
+			min(objects[i].height + expansionAmount * 2, abs(s.height - objects[i].y - 1))
+			);
+		output.push_back(r);
+	}
+	objects = output;
 	return 1;
 }
 

@@ -26,7 +26,7 @@ public:
 	void expandRect(Rect& r, int s, Size frameSize);
 	virtual int setROI(vector<Rect>objects, double time, Size s) = 0;
 	virtual int fallback(vector<Rect>&objects, Size s) = 0;
-	
+	string ROItype = "unset";
 private:
 };
 
@@ -36,6 +36,7 @@ public:
 	Control(Size s, ObsData& obs) :ROI(s, obs){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "Control";
 };
 
 
@@ -45,6 +46,16 @@ public:
 	DynamicRentering(Size s) :ROI(s){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "DynamicRentering";
+};
+
+class Static : public ROI{
+public:
+	Static(Size s, ObsData& obs) :ROI(s, obs){};
+	Static(Size s) :ROI(s){};
+	int setROI(vector<Rect>objects, double time, Size s);
+	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "Static";
 };
 
 class StaticRentering : public ROI{
@@ -53,6 +64,17 @@ public:
 	StaticRentering(Size s) :ROI(s){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "StaticRentering";
+};
+
+class StaticExpanding : public ROI{
+public:
+	StaticExpanding(Size s, ObsData& obs) :ROI(s, obs){};
+	StaticExpanding(Size s) :ROI(s){};
+	int expansionAmount = 50;
+	int setROI(vector<Rect>objects, double time, Size s);
+	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "StaticExpanding";
 };
 
 class ExpandingBox : public ROI{
@@ -61,6 +83,7 @@ public:
 	ExpandingBox(Size s) :ROI(s){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "ExpandingBox";
 };
 
 class BlockMatching : public ROI{
@@ -69,6 +92,7 @@ public:
 	BlockMatching(Size s) :ROI(s){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "BlockMatching";
 };
 
 class KalmanPredictive : public ROI{
@@ -83,6 +107,7 @@ public:
 	double kalmanGain = 0.5;
 	double errMeasurement = 0.5;
 	double Q, R = 0; //constants
+	string ROItype = "KalmanPredictive";
 };
 
 class MonteCarloPredictive : public ROI{
@@ -91,6 +116,7 @@ public:
 	MonteCarloPredictive(Size s) :ROI(s){};
 	int setROI(vector<Rect>objects, double time, Size s);
 	int fallback(vector<Rect>&objects, Size s);
+	string ROItype = "MonteCarloPredictive";
 };
 
 #endif

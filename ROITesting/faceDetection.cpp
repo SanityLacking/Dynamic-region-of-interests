@@ -13,7 +13,7 @@ FaceDetect::FaceDetect(){
 }
 
 //do the same thing as the other detectfaces, but have no fallback method.
-/*vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef, bool fallback = true){
+vector<Rect> FaceDetect::detectFaces(Mat& frame, vector<Rect>& RoiRef, bool fallback = true){
 	vector<Rect> faces;
 	vector<Rect> faces2;
 	if (RoiRef.size() > 0){	//if Roi is present use Roi.
@@ -33,7 +33,7 @@ FaceDetect::FaceDetect(){
 	}
 	return faces;
 }
-*/
+
 
 
 vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi){
@@ -66,17 +66,14 @@ vector<Rect> FaceDetect::detectFaces(Mat& frame, ROI& roi){
 
 	if (faces.size() == 0 && noRoi == false){	// if an Roi was present but no results were found, scan whole image.
 		cout << "No faces within ROI" << endl;
-		faces = detectFaces(frame);
-
-/*		//roi.fallback(RoiRef,frame.size());
+		roi.fallback(RoiRef,frame.size());
 		if (RoiRef.size() <= 0){ //rescan whole image.
 			cout << "Fallback: Rescan" << endl;
 			faces = detectFaces(frame);
 		}else { //use new ROI, but don't create an infinite loop.
 			cout << "Fallback: ROI Method" << endl;
-			//faces = detectFaces(frame, RoiRef, false);
+			faces = detectFaces(frame, RoiRef, false);
 		}
-*/
 	}
 
 	cout << "Number of faces detected " << faces.size() << endl;

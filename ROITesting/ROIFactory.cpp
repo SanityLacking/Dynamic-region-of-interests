@@ -9,8 +9,14 @@ ROI *ROIFactory::createROI(String input, Size s, ObsData obs){
 	if (input == "dynamicRecentering"){
 		return new DynamicRentering(s, obs);
 	}
+	else if (input == "static"){
+		return new Static(s, obs);
+	}
 	else if (input == "staticRecentering"){
 		return new StaticRentering(s, obs);
+	}
+	else if (input == "staticExpanding"){
+		return new StaticExpanding(s, obs);
 	}
 	else if (input == "expandingBox"){
 		return new ExpandingBox(s, obs);
